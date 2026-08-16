@@ -1,22 +1,73 @@
-const menuButton = document.querySelector('.menu-toggle');
-const navigation = document.querySelector('.primary-nav');
-const navigationLinks = document.querySelectorAll('.primary-nav a');
-const yearTarget = document.querySelector('#current-year');
+document.addEventListener("DOMContentLoaded", function () {
+  const menuToggle = document.querySelector(".menu-toggle");
+  const primaryNav = document.querySelector(".primary-nav");
+  const currentYear = document.getElementById("current-year");
 
-if (yearTarget) {
-  yearTarget.textContent = new Date().getFullYear();
-}
+  if (currentYear) {
+    currentYear.textContent = new Date().getFullYear();
+  }
 
-if (menuButton && navigation) {
-  menuButton.addEventListener('click', () => {
-    const isOpen = navigation.classList.toggle('open');
-    menuButton.setAttribute('aria-expanded', String(isOpen));
-  });
+  if (menuToggle && primaryNav) {
+    menuToggle.addEventListener("click", function () {
+      const isOpen = primaryNav.classList.toggle("open");
 
-  navigationLinks.forEach((link) => {
-    link.addEventListener('click', () => {
-      navigation.classList.remove('open');
-      menuButton.setAttribute('aria-expanded', 'false');
+      menuToggle.setAttribute(
+        "aria-expanded",
+        isOpen ? "true" : "false"
+      );
+    });
+
+    primaryNav.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        if (window.innerWidth <= 820) {
+          primaryNav.classList.remove("open");
+          menuToggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    });
+
+    document.addEventListener("click", function (event) {
+      const clickedInsideNav = primaryNav.contains(event.target);
+      const clickedMenuButton = menuToggle.contains(event.target);
+
+      if (
+        window.innerWidth <= 820 &&
+        primaryNav.classList.contains("open") &&
+        !clickedInsideNav &&
+        !clickedMenuButton
+      ) {
+        primaryNav.classList.remove("open");
+        menuToggle.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 820) {
+        primaryNav.classList.remove("open");
+        menuToggle.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+  const internalLinks = document.querySelectorAll(
+    'a[href^="#"]:not([href="#"])'
+  );
+
+  internalLinks.forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      const targetId = link.getAttribute("href");
+      const target = document.querySelector(targetId);
+
+      if (!target) {
+        return;
+      }
+
+      event.preventDefault();
+
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
     });
   });
-}
+});
