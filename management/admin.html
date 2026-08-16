@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="robots" content="noindex, nofollow">
+
+  <title>RCW Sr. Pricing Management</title>
+
+  <style>
+    :root {
+      --orange: #f47a20;
+      --orange-dark: #d95f0b;
+      --cream: #fff7ef;
+      --pewter: #5b6168;
+      --charcoal: #22272b;
+      --black: #111111;
+      --white: #ffffff;
+      --border: #d8dadd;
+      --green: #1f7a4d;
+      --red: #a12b2b;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--charcoal);
+      background: #f4f4f4;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    .container {
+      width: min(94%, 1200px);
+      margin: 0 auto;
+    }
+
+    .topbar {
+      background: var(--charcoal);
+      color: var(--white);
+      border-bottom: 5px solid var(--orange);
+    }
+
+    .topbar-inner {
+      padding: 24px 0;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .warning {
+      margin: 24px 0;
+      padding: 18px 20px;
+      background: #fff3cd;
+      border-left: 5px solid #d39e00;
+      border-radius: 10px;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 28px;
+      margin-bottom: 40px;
+    }
+
+    .panel {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 18px 22px;
+      background: var(--charcoal);
+      color: var(--white);
+      border-bottom: 4px solid var(--orange);
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .panel-body {
+      padding: 24px;
+    }
+
+    .section-title {
+      margin: 30px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--orange);
+      font-size: 1.15rem;
+    }
+
+    .section-title:first-child {
+      margin-top: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+
+    .help {
+      font-size: 0.8rem;
+      color: #70757a;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--white);
+      color: var(--charcoal);
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: 3px solid rgba(244, 122, 32, 0.18);
+      border-color: var(--orange);
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .summary-row:last-child {
+      border-bottom: 0;
+    }
+
+    .summary-row span {
+      color: #5f6368;
+    }
+
+    .summary-row strong {
+      text-align: right;
+    }
+
+    .summary-row.highlight {
+      margin-top: 10px;
+      padding: 16px;
+      background: var(--cream);
+      border: 1px solid rgba(244, 122, 32, 0.25);
+      border-radius: 10px;
+    }
+
+    .summary-row.highlight strong {
+      color: var(--orange-dark);
+      font-size: 1.25rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 20px;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--orange);
+      color: var(--white);
+    }
+
+    .button:hover {
+      background: var(--orange-dark);
+    }
+
+    .button-secondary {
+      background: var(--charcoal);
+    }
+
+    .button-secondary:hover {
+      background: var(--black);
+    }
+
+    .button-light {
+      background: var(--pewter);
+    }
+
+    .button-light:hover {
+      background: #454a4f;
+    }
+
+    .output-wrap {
+      margin-bottom: 50px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 500px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      resize: vertical;
+      background: #161a1d;
+      color: #f7f7f7;
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 12px;
+      font-weight: 800;
+    }
+
+    .status.success {
+      color: var(--green);
+    }
+
+    .status.error {
+      color: var(--red);
+    }
+
+    .sample-box {
+      margin-top: 20px;
+      padding: 18px;
+      background: var(--cream);
+      border-radius: 12px;
+      border-left: 5px solid var(--orange);
+    }
+
+    .sample-box h3 {
+      margin-top: 0;
+    }
+
+    .sample-calculation {
+      font-family: Consolas, Monaco, monospace;
+      white-space: pre-line;
+    }
+
+    footer {
+      padding: 24px 0 40px;
+      color: #666;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    @media (max-width: 850px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full {
+        grid-column: auto;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <h1>RCW Sr. Pricing Management</h1>
+
+      <p>
+        Private pricing configuration tool for RCW Sr. Notary Services.
+      </p>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <div class="warning">
+      <strong>Keep this file outside the docs folder.</strong>
+      This page is a local management tool. It does not directly change your live website.
+      It creates the complete pricing.json file that you upload to GitHub.
+    </div>
+
+    <div class="dashboard">
+
+      <section class="panel">
+
+        <div class="panel-header">
+          <h2>Pricing Controls</h2>
+        </div>
+
+        <div class="panel-body">
+
+          <h3 class="section-title">
+            Effective Date
+          </h3>
+
+          <div class="form-grid">
+
+            <div class="field full">
+              <label for="effectiveDate">
+                Effective Date
+              </label>
+
+              <input
+                type="date"
+                id="effectiveDate"
+              >
+            </div>
+
+          </div>
+
+          <h3 class="section-title">
+            Notary Fees
+          </h3>
+
+          <div class="form-grid">
+
+            <div class="field">
+
+              <label for="inPersonNotary">
+                In-Person Notarial Act
+              </label>
+
+              <input
+                type="number"
+                id="inPersonNotary"
+                min="0"
+                step="0.01"
+                value="10.00"
+              >
+
+              <span class="help">
+                Current working value: $10.00
+              </span>
+
+            </div>
+
+            <div class="field">
+
+              <label for="ronNotary">
+                RON Notarial Act
+              </label>
+
+              <input
+                type="number"
+                id="ronNotary"
+                min="0"
+                step="0.01"
+                value="25.00"
+              >
+
+              <span class="help">
+                Current working value: $25.00
+              </span>
+
+            </div>
+
+            <div class="field">
+
+              <label for="ronService">
+                RON Technology / Service Fee
+              </label>
+
+              <input
+                type="number"
+                id="ronService"
+                min="0"
+                step="0.01"
+                value="22.00"
+              >
+
+            </div>
+
+            <div class="field">
+
+              <label for="mobileBase">
+                Mobile Service Base Fee
+              </label>
+
+              <input
+                type="number"
+                id="mobileBase"
+                min="0"
+                step="0.01"
+                value="40.00"
+              >
+
+            </div>
+
+          </div>
+
+          <h3 class="section-title">
+            Travel Calculation
+          </h3>
+
+          <div class="form-grid">
+
+            <div class="field">
+
+              <label for="premiumGasBenchmark">
+                Premium Gas Benchmark
+              </label>
+
+              <input
+                type="number"
+                id="premiumGasBenchmark"
+                min="0"
+                step="0.01"
+                value="4.15"
+              >
+
+              <span class="help">
+                Enter current premium gasoline benchmark.
+              </span>
+
+            </div>
+
+            <div class="field">
+
+              <label for="operatingAllowance">
+                Operating Allowance
+              </label>
+
+              <input
+                type="number"
+                id="operatingAllowance"
+                min="0"
+                step="0.01"
+                value="1.00"
+              >
+
+              <span class="help">
+                Current rule: premium benchmark plus $1.00.
+              </span>
+
+            </div>
+
+            <div class="field">
+
+              <label for="vehicleMpg">
+                Vehicle MPG
+              </label>
+
+              <input
+                type="number"
+                id="vehicleMpg"
+                min="1"
+                step="0.1"
+                value="25"
+              >
+
+            </div>
+
+            <div class="field">
+
+              <label for="automaticTravelRadius">
+                Standard One-Way Travel Radius
+              </label>
+
+              <input
+                type="number"
+                id="automaticTravelRadius"
+                min="1"
+                step="1"
+                value="40"
+              >
+
+              <span class="help">
+                Miles before a custom quote is recommended.
+              </span>
+
+            </div>
+
+          </div>
+
+          <h3 class="section-title">
+            Scheduling Fees
+          </h3>
+
+          <div class="form-grid">
+
+            <div class="field">
+
+              <label for="sameDay">
+                Same-Day Priority Fee
+              </label>
+
+              <input
+                type="number"
+                id="sameDay"
+                min="0"
+                step="0.01"
+                value="20.00"
+              >
+
+            </div>
+
+            <div class="field">
+
+              <label for="afterHours">
+                After-Hours Fee
+              </label>
+
+              <input
+                type="number"
+                id="afterHours"
+                min="0"
+                step="0.01"
+                value="25.00"
+              >
+
+            </div>
+
+            <div class="field">
+
+              <label for="holiday">
+                Holiday Fee
+              </label>
+
+              <input
+                type="number"
+                id="holiday"
+                min="0"
+                step="0.01"
+                value="35.00"
+              >
+
+            </div>
+
+            <div class="field">
+
+              <label for="waitingPer15Minutes">
+                Waiting Fee Per 15 Minutes
+              </label>
+
+              <input
+                type="number"
+                id="waitingPer15Minutes"
+                min="0"
+                step="0.01"
+                value="15.00"
+              >
+
+            </div>
+
+          </div>
+
+          <div class="actions">
+
+            <button
+              class="button"
+              type="button"
+              id="generateButton"
+            >
+              Generate pricing.json
+            </button>
+
+            <button
+              class="button button-secondary"
+              type="button"
+              id="copyButton"
+            >
+              Copy JSON
+            </button>
+
+            <button
+              class="button button-light"
+              type="button"
+              id="downloadButton"
+            >
+              Download pricing.json
+            </button>
+
+          </div>
+
+          <div
+            id="status"
+            class="status"
+            aria-live="polite"
+          ></div>
+
+        </div>
+
+      </section>
+
+      <aside class="panel">
+
+        <div class="panel-header">
+          <h2>Current Calculation Preview</h2>
+        </div>
+
+        <div class="panel-body">
+
+          <div class="summary-grid">
+
+            <div class="summary-row">
+              <span>Premium Benchmark</span>
+              <strong id="previewGas">$4.15</strong>
+            </div>
+
+            <div class="summary-row">
+              <span>Operating Allowance</span>
+              <strong id="previewAllowance">$1.00</strong>
+            </div>
+
+            <div class="summary-row highlight">
+              <span>RCW Travel Calculation Rate</span>
+              <strong id="previewTravelRate">$5.15</strong>
+            </div>
+
+            <div class="summary-row">
+              <span>Vehicle MPG</span>
+              <strong id="previewMpg">25 MPG</strong>
+            </div>
+
+            <div class="summary-row">
+              <span>Mobile Base Fee</span>
+              <strong id="previewMobileBase">$40.00</strong>
+            </div>
+
+            <div class="summary-row">
+              <span>In-Person Notarial Act</span>
+              <strong id="previewInPerson">$10.00</strong>
+            </div>
+
+            <div class="summary-row">
+              <span>RON Notarial Act</span>
+              <strong id="previewRon">$25.00</strong>
+            </div>
+
+            <div class="summary-row">
+              <span>RON Technology / Service</span>
+              <strong id="previewRonService">$22.00</strong>
+            </div>
+
+          </div>
+
+          <div class="sample-box">
+
+            <h3>
+              14-Mile Mobile Example
+            </h3>
+
+            <div
+              id="sampleCalculation"
+              class="sample-calculation"
+            ></div>
+
+          </div>
+
+        </div>
+
+      </aside>
+
+    </div>
+
+    <section class="panel output-wrap">
+
+      <div class="panel-header">
+        <h2>Generated pricing.json</h2>
+      </div>
+
+      <div class="panel-body">
+
+        <textarea
+          id="jsonOutput"
+          spellcheck="false"
+          aria-label="Generated pricing JSON"
+        ></textarea>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer>
+    RCW Sr. Notary Services Pricing Management Tool
+  </footer>
+
+  <script>
+    "use strict";
+
+    const fields = [
+      "effectiveDate",
+      "inPersonNotary",
+      "ronNotary",
+      "ronService",
+      "mobileBase",
+      "premiumGasBenchmark",
+      "operatingAllowance",
+      "vehicleMpg",
+      "sameDay",
+      "afterHours",
+      "holiday",
+      "waitingPer15Minutes",
+      "automaticTravelRadius"
+    ];
+
+    function element(id) {
+      return document.getElementById(id);
+    }
+
+    function numberValue(id, fallback = 0) {
+      const value = Number(element(id).value);
+
+      if (!Number.isFinite(value)) {
+        return fallback;
+      }
+
+      return value;
+    }
+
+    function money(value) {
+      return Number(value).toLocaleString(
+        "en-US",
+        {
+          style: "currency",
+          currency: "USD",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }
+      );
+    }
+
+    function setDefaultDate() {
+      const dateField = element("effectiveDate");
+
+      if (dateField.value) {
+        return;
+      }
+
+      const today = new Date();
+
+      const year = today.getFullYear();
+
+      const month = String(
+        today.getMonth() + 1
+      ).padStart(2, "0");
+
+      const day = String(
+        today.getDate()
+      ).padStart(2, "0");
+
+      dateField.value =
+        year + "-" + month + "-" + day;
+    }
+
+    function getPricingObject() {
+      return {
+        effectiveDate:
+          element("effectiveDate").value,
+
+        inPersonNotary:
+          numberValue("inPersonNotary"),
+
+        ronNotary:
+          numberValue("ronNotary"),
+
+        ronService:
+          numberValue("ronService"),
+
+        mobileBase:
+          numberValue("mobileBase"),
+
+        premiumGasBenchmark:
+          numberValue("premiumGasBenchmark"),
+
+        operatingAllowance:
+          numberValue("operatingAllowance"),
+
+        vehicleMpg:
+          numberValue("vehicleMpg", 25),
+
+        sameDay:
+          numberValue("sameDay"),
+
+        afterHours:
+          numberValue("afterHours"),
+
+        holiday:
+          numberValue("holiday"),
+
+        waitingPer15Minutes:
+          numberValue("waitingPer15Minutes"),
+
+        automaticTravelRadius:
+          numberValue(
+            "automaticTravelRadius",
+            40
+          )
+      };
+    }
+
+    function updatePreview() {
+      const pricing = getPricingObject();
+
+      const travelRate =
+        pricing.premiumGasBenchmark +
+        pricing.operatingAllowance;
+
+      element("previewGas").textContent =
+        money(pricing.premiumGasBenchmark);
+
+      element("previewAllowance").textContent =
+        money(pricing.operatingAllowance);
+
+      element("previewTravelRate").textContent =
+        money(travelRate);
+
+      element("previewMpg").textContent =
+        pricing.vehicleMpg + " MPG";
+
+      element("previewMobileBase").textContent =
+        money(pricing.mobileBase);
+
+      element("previewInPerson").textContent =
+        money(pricing.inPersonNotary);
+
+      element("previewRon").textContent =
+        money(pricing.ronNotary);
+
+      element("previewRonService").textContent =
+        money(pricing.ronService);
+
+      updateSampleCalculation(pricing);
+    }
+
+    function updateSampleCalculation(pricing) {
+      const oneWayMiles = 14;
+
+      const roundTripMiles =
+        oneWayMiles * 2;
+
+      const travelRate =
+        pricing.premiumGasBenchmark +
+        pricing.operatingAllowance;
+
+      const gallons =
+        roundTripMiles /
+        Math.max(1, pricing.vehicleMpg);
+
+      const rawTravelCharge =
+        gallons * travelRate;
+
+      const finalTravelCharge =
+        Math.ceil(rawTravelCharge);
+
+      const estimatedTotal =
+        pricing.mobileBase +
+        finalTravelCharge +
+        pricing.inPersonNotary;
+
+      element("sampleCalculation").textContent =
+        oneWayMiles +
+        " miles each way\n" +
+        roundTripMiles +
+        " round-trip miles\n\n" +
+        roundTripMiles +
+        " ÷ " +
+        pricing.vehicleMpg +
+        " MPG = " +
+        gallons.toFixed(2) +
+        " gallons\n\n" +
+        gallons.toFixed(2) +
+        " × " +
+        money(travelRate) +
+        " = " +
+        money(rawTravelCharge) +
+        "\n\nTravel charge rounded up = " +
+        money(finalTravelCharge) +
+        "\nMobile base = " +
+        money(pricing.mobileBase) +
+        "\n1 notarial act = " +
+        money(pricing.inPersonNotary) +
+        "\n\nEstimated total = " +
+        money(estimatedTotal);
+    }
+
+    function generateJson() {
+      const pricing =
+        getPricingObject();
+
+      const json =
+        JSON.stringify(
+          pricing,
+          null,
+          2
+        );
+
+      element("jsonOutput").value =
+        json;
+
+      showStatus(
+        "pricing.json generated.",
+        "success"
+      );
+
+      return json;
+    }
+
+    async function copyJson() {
+      const json =
+        generateJson();
+
+      try {
+        await navigator.clipboard.writeText(json);
+
+        showStatus(
+          "pricing.json copied to clipboard.",
+          "success"
+        );
+      } catch (error) {
+        element("jsonOutput").select();
+
+        document.execCommand("copy");
+
+        showStatus(
+          "pricing.json copied to clipboard.",
+          "success"
+        );
+      }
+    }
+
+    function downloadJson() {
+      const json =
+        generateJson();
+
+      const blob =
+        new Blob(
+          [json],
+          {
+            type: "application/json"
+          }
+        );
+
+      const url =
+        URL.createObjectURL(blob);
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      link.download =
+        "pricing.json";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      URL.revokeObjectURL(url);
+
+      showStatus(
+        "pricing.json downloaded.",
+        "success"
+      );
+    }
+
+    function showStatus(message, type) {
+      const status =
+        element("status");
+
+      status.textContent =
+        message;
+
+      status.className =
+        "status " + type;
+    }
+
+    fields.forEach(function (id) {
+      const field =
+        element(id);
+
+      if (!field) {
+        return;
+      }
+
+      field.addEventListener(
+        "input",
+        function () {
+          updatePreview();
+          generateJson();
+        }
+      );
+    });
+
+    element("generateButton")
+      .addEventListener(
+        "click",
+        generateJson
+      );
+
+    element("copyButton")
+      .addEventListener(
+        "click",
+        copyJson
+      );
+
+    element("downloadButton")
+      .addEventListener(
+        "click",
+        downloadJson
+      );
+
+    setDefaultDate();
+
+    updatePreview();
+
+    generateJson();
+  </script>
+
+</body>
+</html>
