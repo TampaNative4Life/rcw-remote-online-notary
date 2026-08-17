@@ -101,8 +101,9 @@
 
           <p class="hero-text">
             The more information you provide now,
-            the faster I can confirm your appointment
-            and give you an accurate estimate.
+            the faster I can review the request,
+            estimate pricing,
+            and respond.
           </p>
 
           <div class="hero-actions">
@@ -151,7 +152,8 @@
           </h2>
 
           <p>
-            Tell me your location,
+            Tell me how you want to be contacted,
+            your location,
             service type,
             preferred appointment time,
             and basic document information.
@@ -182,101 +184,6 @@
 
     </section>
 
-    <section class="section">
-
-      <div class="container">
-
-        <div class="section-heading">
-
-          <p class="eyebrow">
-            Before You Start
-          </p>
-
-          <h2>
-            Have these details ready.
-          </h2>
-
-        </div>
-
-        <div class="card-grid">
-
-          <article class="service-card">
-
-            <span class="service-number">
-              01
-            </span>
-
-            <h3>
-              Service Type
-            </h3>
-
-            <p>
-              Tell me whether you need Remote Online Notary service,
-              mobile service,
-              or are not sure yet.
-            </p>
-
-          </article>
-
-          <article class="service-card">
-
-            <span class="service-number">
-              02
-            </span>
-
-            <h3>
-              Location
-            </h3>
-
-            <p>
-              For mobile service,
-              provide the address where you want the appointment.
-            </p>
-
-          </article>
-
-          <article class="service-card">
-
-            <span class="service-number">
-              03
-            </span>
-
-            <h3>
-              Timing
-            </h3>
-
-            <p>
-              Provide your preferred date,
-              time,
-              and time zone.
-            </p>
-
-          </article>
-
-          <article class="service-card">
-
-            <span class="service-number">
-              04
-            </span>
-
-            <h3>
-              Document Details
-            </h3>
-
-            <p>
-              Tell me the document type,
-              number of signers,
-              and estimated number of notarial acts.
-            </p>
-
-          </article>
-
-        </div>
-
-      </div>
-
-    </section>
-
     <section
       id="appointment-form"
       class="section section-pewter"
@@ -295,9 +202,8 @@
           </h2>
 
           <p style="color: rgba(255,255,255,0.84);">
-            Complete the form with enough detail for me to review your request,
-            estimate pricing,
-            and determine the next step.
+            Submitting this form sends an appointment request.
+            It does not confirm the appointment.
           </p>
 
         </div>
@@ -305,9 +211,15 @@
         <form
           class="service-choice-card"
           id="contact-form"
-          action="#"
-          method="post"
+          action="https://formspree.io/f/xnpagrwk"
+          method="POST"
         >
+
+          <input
+            type="hidden"
+            name="_subject"
+            value="New RCW Appointment Request"
+          >
 
           <div class="form-grid">
 
@@ -377,6 +289,66 @@
 
             <div class="form-group">
 
+              <label for="preferred-contact">
+                Best Way to Contact You
+              </label>
+
+              <select
+                id="preferred-contact"
+                name="preferredContact"
+                required
+              >
+                <option value="">
+                  Select one
+                </option>
+
+                <option value="Phone Call">
+                  Phone Call
+                </option>
+
+                <option value="Email">
+                  Email
+                </option>
+              </select>
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="best-contact-time">
+                Best Time to Contact You
+              </label>
+
+              <select
+                id="best-contact-time"
+                name="bestContactTime"
+                required
+              >
+                <option value="">
+                  Select one
+                </option>
+
+                <option value="Morning">
+                  Morning
+                </option>
+
+                <option value="Afternoon">
+                  Afternoon
+                </option>
+
+                <option value="Evening">
+                  Evening
+                </option>
+
+                <option value="Anytime">
+                  Anytime
+                </option>
+              </select>
+
+            </div>
+
+            <div class="form-group">
+
               <label for="service-type">
                 Service Needed
               </label>
@@ -390,15 +362,15 @@
                   Select a service
                 </option>
 
-                <option value="ron">
+                <option value="Remote Online Notary">
                   Remote Online Notary
                 </option>
 
-                <option value="mobile">
+                <option value="Mobile Notary">
                   Mobile Notary, Come to Me
                 </option>
 
-                <option value="unsure">
+                <option value="Not Sure">
                   Not Sure Yet
                 </option>
               </select>
@@ -420,31 +392,31 @@
                   Select your time zone
                 </option>
 
-                <option value="ET">
+                <option value="Eastern">
                   Eastern Time
                 </option>
 
-                <option value="CT">
+                <option value="Central">
                   Central Time
                 </option>
 
-                <option value="MT">
+                <option value="Mountain">
                   Mountain Time
                 </option>
 
-                <option value="PT">
+                <option value="Pacific">
                   Pacific Time
                 </option>
 
-                <option value="AKT">
+                <option value="Alaska">
                   Alaska Time
                 </option>
 
-                <option value="HT">
+                <option value="Hawaii">
                   Hawaii Time
                 </option>
 
-                <option value="OTHER">
+                <option value="Other">
                   Other
                 </option>
               </select>
@@ -551,6 +523,20 @@
 
             <div class="form-group">
 
+              <label for="alternate-date">
+                Alternate Appointment Date
+              </label>
+
+              <input
+                type="date"
+                id="alternate-date"
+                name="alternateDate"
+              >
+
+            </div>
+
+            <div class="form-group">
+
               <label for="alternate-time">
                 Alternate Appointment Time
               </label>
@@ -626,20 +612,54 @@
                 name="urgency"
                 required
               >
-                <option value="standard">
+                <option value="Standard">
                   Standard Appointment
                 </option>
 
-                <option value="same-day">
+                <option value="Same Day">
                   Same-Day Request
                 </option>
 
-                <option value="after-hours">
+                <option value="After Hours">
                   Before 7 AM or After 11 PM
                 </option>
 
-                <option value="holiday">
+                <option value="Holiday">
                   Holiday Request
+                </option>
+
+                <option value="Not Sure">
+                  Not Sure
+                </option>
+              </select>
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="witnesses">
+                Do You Need Witnesses?
+              </label>
+
+              <select
+                id="witnesses"
+                name="witnesses"
+                required
+              >
+                <option value="">
+                  Select one
+                </option>
+
+                <option value="Yes">
+                  Yes
+                </option>
+
+                <option value="No">
+                  No
+                </option>
+
+                <option value="Not Sure">
+                  Not Sure
                 </option>
               </select>
 
@@ -648,7 +668,7 @@
             <div class="form-group full">
 
               <label for="special-circumstances">
-                Special Circumstances or Accessibility Needs
+                Accessibility or Special Circumstances
               </label>
 
               <textarea
@@ -680,9 +700,11 @@
                   type="checkbox"
                   id="pricing-confirmation"
                   name="pricingConfirmation"
+                  value="Agreed"
                   required
                 >
-                I understand that the final price will be confirmed before the appointment is accepted.
+
+                I understand that my appointment is not confirmed until RCW Sr. Notary Services reviews and accepts the request.
               </label>
 
             </div>
@@ -694,10 +716,22 @@
                   type="checkbox"
                   id="privacy-confirmation"
                   name="privacyConfirmation"
+                  value="Agreed"
                   required
                 >
-                I have reviewed the Privacy Policy and understand that I should not submit sensitive financial credentials, Social Security numbers, passwords, or full sensitive documents through this general request form.
+
+                I have reviewed the Privacy Policy and understand that I should not submit Social Security numbers, financial account numbers, passwords, or full sensitive documents through this form.
               </label>
+
+            </div>
+
+            <div class="form-group full">
+
+              <div
+                id="form-status"
+                class="small-print"
+                aria-live="polite"
+              ></div>
 
             </div>
 
@@ -706,6 +740,7 @@
               <button
                 class="button button-full"
                 type="submit"
+                id="submit-request"
               >
                 Submit Appointment Request
               </button>
@@ -715,272 +750,6 @@
           </div>
 
         </form>
-
-      </div>
-
-    </section>
-
-    <section class="section">
-
-      <div class="container">
-
-        <div class="section-heading">
-
-          <p class="eyebrow">
-            Mobile Appointment Information
-          </p>
-
-          <h2>
-            For mobile service, location matters.
-          </h2>
-
-        </div>
-
-        <div class="service-choice-grid">
-
-          <article class="service-choice-card featured">
-
-            <p class="service-number">
-              01
-            </p>
-
-            <h3>
-              Send the Exact Location
-            </h3>
-
-            <p>
-              Mobile travel pricing is based on the appointment location
-              and travel from the RCW Sr. service area in ZIP Code 33594.
-            </p>
-
-            <p>
-              Provide the exact address whenever possible so the travel estimate is accurate.
-            </p>
-
-          </article>
-
-          <article class="service-choice-card">
-
-            <p class="service-number">
-              02
-            </p>
-
-            <h3>
-              Tell Me About Access
-            </h3>
-
-            <p>
-              If the appointment is at a hospital,
-              gated community,
-              assisted-living facility,
-              office complex,
-              or other controlled location,
-              provide entry and parking information.
-            </p>
-
-          </article>
-
-        </div>
-
-      </div>
-
-    </section>
-
-    <section class="section section-pewter">
-
-      <div class="container mobile-highlight-grid">
-
-        <div>
-
-          <p class="eyebrow eyebrow-light">
-            Remote Appointment Information
-          </p>
-
-          <h2>
-            Time zone matters.
-          </h2>
-
-        </div>
-
-        <div>
-
-          <p>
-            For Remote Online Notary appointments,
-            always provide your local time zone.
-          </p>
-
-          <p>
-            If you are on the West Coast,
-            your preferred evening appointment may still fit comfortably within my Eastern Time availability.
-          </p>
-
-          <p>
-            If you need something earlier or later,
-            send the request anyway.
-          </p>
-
-        </div>
-
-      </div>
-
-    </section>
-
-    <section class="pricing-preview">
-
-      <div class="container">
-
-        <div class="section-heading">
-
-          <p class="eyebrow">
-            Before You Submit
-          </p>
-
-          <h2>
-            Keep sensitive information out of this form.
-          </h2>
-
-        </div>
-
-        <div class="pricing-preview-grid">
-
-          <article class="price-card">
-
-            <p class="price-label">
-              Do Not Send
-            </p>
-
-            <p>
-              Social Security numbers,
-              bank account numbers,
-              credit card numbers,
-              PINs,
-              passwords,
-              or access codes.
-            </p>
-
-          </article>
-
-          <article class="price-card">
-
-            <p class="price-label">
-              Do Not Paste Full Documents
-            </p>
-
-            <p>
-              Use the form to describe the document type.
-              Secure document delivery will be handled separately when needed.
-            </p>
-
-          </article>
-
-          <article class="price-card">
-
-            <p class="price-label">
-              Tell Me What Matters
-            </p>
-
-            <p>
-              Service type,
-              location,
-              timing,
-              signer count,
-              document type,
-              and special circumstances are enough to start.
-            </p>
-
-          </article>
-
-        </div>
-
-      </div>
-
-    </section>
-
-    <section class="section">
-
-      <div class="container">
-
-        <div class="section-heading">
-
-          <p class="eyebrow">
-            Important
-          </p>
-
-          <h2>
-            A notary cannot provide legal advice.
-          </h2>
-
-          <p>
-            RCW Sr. Notary Services can perform eligible notarial acts,
-            but cannot tell you which document to use,
-            choose a notarial certificate for you,
-            explain your legal rights,
-            or provide legal advice.
-          </p>
-
-        </div>
-
-        <div class="final-cta-actions">
-
-          <a
-            class="button"
-            href="faq.html"
-          >
-            Read the FAQ
-          </a>
-
-          <a
-            class="button button-secondary"
-            href="privacy.html"
-          >
-            Privacy Policy
-          </a>
-
-        </div>
-
-      </div>
-
-    </section>
-
-    <section class="section final-cta">
-
-      <div class="container final-cta-inner">
-
-        <div>
-
-          <p class="eyebrow">
-            Need Pricing First?
-          </p>
-
-          <h2>
-            Check the numbers before you schedule.
-          </h2>
-
-          <p>
-            Review standard RON fees,
-            mobile service charges,
-            and the mobile travel estimator.
-          </p>
-
-        </div>
-
-        <div class="final-cta-actions">
-
-          <a
-            class="button"
-            href="pricing.html"
-          >
-            View Pricing
-          </a>
-
-          <a
-            class="button button-secondary"
-            href="services.html"
-          >
-            Review Services
-          </a>
-
-        </div>
 
       </div>
 
