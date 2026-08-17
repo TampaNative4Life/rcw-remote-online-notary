@@ -1,27 +1,15 @@
 {
   "effectiveDate": "2026-08-17",
-
   "inPersonNotary": 10.00,
-
   "ronNotary": 25.00,
-
   "ronService": 22.00,
-
   "mobileBase": 40.00,
-
   "premiumGasBenchmark": 4.15,
-
   "operatingAllowance": 1.00,
-
   "vehicleMpg": 25,
-
   "sameDay": 20.00,
-
   "afterHours": 25.00,
-
   "holiday": 35.00,
-
   "waitingPer15Minutes": 15.00,
-
   "automaticTravelRadius": 40
 }
