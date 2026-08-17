@@ -2,11 +2,31 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  const menuToggle =
-    document.querySelector(".menu-toggle");
+  /*
+    --------------------------------------------------
+    RCW SR. NOTARY SERVICES
+    MAIN SITE JAVASCRIPT
 
-  const primaryNav =
-    document.querySelector(".primary-nav")
+    Appointment workflow:
+
+    1. Customer submits website form
+    2. Formspree receives submission
+    3. Formspree sends email notification
+    4. Google Apps Script receives same submission
+    5. Google Sheet receives new appointment row
+    6. Customer goes to thank-you.html
+    --------------------------------------------------
+  */
+
+  const GOOGLE_SHEETS_URL =
+    "https://script.google.com/macros/s/AKfycbyaOMyJdieQHb2JKX8jZduNBDh0HkQVpEaIirkfAXqVOkVL1Gf-Z0aCm8JpM4PUw-Ur/exec";
+
+
+  /*
+    --------------------------------------------------
+    CURRENT YEAR
+    --------------------------------------------------
+  */
 
   const currentYear =
     document.getElementById("current-year");
@@ -15,6 +35,20 @@ document.addEventListener("DOMContentLoaded", function () {
     currentYear.textContent =
       new Date().getFullYear();
   }
+
+
+  /*
+    --------------------------------------------------
+    MOBILE NAVIGATION
+    --------------------------------------------------
+  */
+
+  const menuToggle =
+    document.querySelector(".menu-toggle");
+
+  const primaryNav =
+    document.querySelector(".primary-nav");
+
 
   if (menuToggle && primaryNav) {
 
@@ -101,10 +135,17 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
+  /*
+    --------------------------------------------------
+    SMOOTH INTERNAL LINKS
+    --------------------------------------------------
+  */
+
   const internalLinks =
     document.querySelectorAll(
       'a[href^="#"]:not([href="#"])'
     );
+
 
   internalLinks.forEach(function (link) {
 
@@ -133,10 +174,17 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
 
+  /*
+    --------------------------------------------------
+    PREVENT PAST APPOINTMENT DATES
+    --------------------------------------------------
+  */
+
   const dateInputs =
     document.querySelectorAll(
       'input[type="date"]'
     );
+
 
   if (dateInputs.length > 0) {
 
@@ -159,6 +207,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const todayString =
       `${year}-${month}-${day}`;
 
+
     dateInputs.forEach(function (input) {
 
       input.min =
@@ -166,6 +215,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+
+  /*
+    --------------------------------------------------
+    APPOINTMENT FORM
+    --------------------------------------------------
+  */
 
   const contactForm =
     document.getElementById(
@@ -193,6 +248,12 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
 
+  /*
+    --------------------------------------------------
+    MOBILE ADDRESS REQUIREMENT
+    --------------------------------------------------
+  */
+
   function updateAddressRequirement() {
 
     if (
@@ -202,19 +263,22 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+
     if (
       serviceType.value ===
       "Mobile Notary"
     ) {
 
-      streetAddress.required = true;
+      streetAddress.required =
+        true;
 
       streetAddress.placeholder =
         "Required for mobile appointments";
 
     } else {
 
-      streetAddress.required = false;
+      streetAddress.required =
+        false;
 
       streetAddress.placeholder =
         "Required for mobile appointments";
@@ -236,6 +300,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
+  /*
+    --------------------------------------------------
+    FORM STATUS MESSAGE
+    --------------------------------------------------
+  */
+
   function setFormMessage(
     message,
     isError
@@ -244,6 +314,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!formStatus) {
       return;
     }
+
 
     formStatus.textContent =
       message;
@@ -258,6 +329,64 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
+  /*
+    --------------------------------------------------
+    SEND TO GOOGLE SHEETS
+    --------------------------------------------------
+  */
+
+  async function sendToGoogleSheets(
+    formData
+  ) {
+
+    const sheetData =
+      new URLSearchParams();
+
+
+    for (
+      const [key, value]
+      of formData.entries()
+    ) {
+
+      sheetData.append(
+        key,
+        value
+      );
+    }
+
+
+    /*
+      no-cors is intentional.
+
+      Google Apps Script web apps can redirect
+      responses through Google infrastructure.
+
+      We only need to send the appointment data.
+      The spreadsheet script performs the row insert.
+    */
+
+    await fetch(
+      GOOGLE_SHEETS_URL,
+      {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type":
+            "application/x-www-form-urlencoded;charset=UTF-8"
+        },
+        body:
+          sheetData.toString()
+      }
+    );
+  }
+
+
+  /*
+    --------------------------------------------------
+    FORM SUBMISSION
+    --------------------------------------------------
+  */
+
   if (contactForm) {
 
     contactForm.addEventListener(
@@ -267,6 +396,17 @@ document.addEventListener("DOMContentLoaded", function () {
         event.preventDefault();
 
 
+        /*
+          Recheck conditional requirements.
+        */
+
+        updateAddressRequirement();
+
+
+        /*
+          Browser validation.
+        */
+
         if (!contactForm.checkValidity()) {
 
           contactForm.reportValidity();
@@ -275,8 +415,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        updateAddressRequirement();
-
+        /*
+          Extra mobile-address check.
+        */
 
         if (
           serviceType &&
@@ -293,6 +434,10 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
+
+        /*
+          Lock button while processing.
+        */
 
         if (submitButton) {
 
@@ -312,18 +457,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
 
+          /*
+            Capture the form once.
+
+            The same information goes to
+            Formspree and Google Sheets.
+          */
+
           const formData =
             new FormData(
               contactForm
             );
 
 
-          const response =
+          /*
+            ------------------------------------------
+            STEP 1
+            SEND TO FORMSPREE
+            ------------------------------------------
+          */
+
+          const formspreeResponse =
             await fetch(
               contactForm.action,
               {
                 method: "POST",
-                body: formData,
+
+                body:
+                  formData,
+
                 headers: {
                   "Accept":
                     "application/json"
@@ -332,59 +494,129 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
 
-          if (response.ok) {
+          /*
+            Formspree must succeed before we
+            consider the appointment submitted.
+          */
 
-            contactForm.reset();
+          if (!formspreeResponse.ok) {
 
-            window.location.href =
-              "thank-you.html";
+            let errorMessage =
+              "Your appointment request could not be submitted. Please check your information and try again.";
 
-            return;
-          }
-
-
-          let message =
-            "Your request could not be submitted. Please check your information and try again.";
-
-
-          if (response.status === 429) {
-
-            message =
-              "Too many requests were submitted in a short period. Please wait a few minutes and try again.";
-          }
-
-
-          try {
-
-            const data =
-              await response.json();
 
             if (
-              data &&
-              Array.isArray(
-                data.errors
-              ) &&
-              data.errors.length > 0
+              formspreeResponse.status ===
+              429
             ) {
 
-              message =
-                data.errors
-                  .map(function (error) {
-                    return error.message;
-                  })
-                  .join(" ");
+              errorMessage =
+                "Too many requests were submitted in a short period. Please wait a few minutes and try again.";
             }
 
-          } catch (jsonError) {
 
-            console.error(
-              "Could not read Formspree error response:",
-              jsonError
+            try {
+
+              const errorData =
+                await formspreeResponse.json();
+
+
+              if (
+                errorData &&
+                Array.isArray(
+                  errorData.errors
+                ) &&
+                errorData.errors.length > 0
+              ) {
+
+                errorMessage =
+                  errorData.errors
+                    .map(
+                      function (error) {
+
+                        return error.message;
+                      }
+                    )
+                    .join(" ");
+              }
+
+            } catch (jsonError) {
+
+              console.error(
+                "Could not read Formspree error response:",
+                jsonError
+              );
+            }
+
+
+            throw new Error(
+              errorMessage
             );
           }
 
 
-          throw new Error(message);
+          /*
+            ------------------------------------------
+            STEP 2
+            SEND SAME REQUEST TO GOOGLE SHEETS
+            ------------------------------------------
+          */
+
+          try {
+
+            await sendToGoogleSheets(
+              formData
+            );
+
+          } catch (sheetError) {
+
+            /*
+              Do NOT tell the customer their
+              appointment failed.
+
+              Formspree already received it,
+              so the business still has the request.
+
+              Log spreadsheet failure separately.
+            */
+
+            console.error(
+              "Google Sheets logging error:",
+              sheetError
+            );
+          }
+
+
+          /*
+            ------------------------------------------
+            STEP 3
+            SUCCESS
+            ------------------------------------------
+          */
+
+          contactForm.reset();
+
+
+          setFormMessage(
+            "Request received. Opening confirmation...",
+            false
+          );
+
+
+          /*
+            Small delay gives the browser time
+            to dispatch the spreadsheet request.
+          */
+
+          window.setTimeout(
+            function () {
+
+              window.location.href =
+                "thank-you.html";
+
+            },
+            400
+          );
 
 
         } catch (error) {
