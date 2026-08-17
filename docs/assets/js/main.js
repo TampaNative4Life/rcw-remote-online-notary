@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector(".menu-toggle");
 
   const primaryNav =
-    document.querySelector(".primary-nav");
+    document.querySelector(".primary-nav")
 
   const currentYear =
     document.getElementById("current-year");
