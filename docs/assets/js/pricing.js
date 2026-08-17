@@ -1,26 +1,9 @@
 "use strict";
 
-/*
-  RCW Sr. Notary Services
-  Pricing Engine
-
-  Public pricing values are loaded from:
-  assets/data/pricing.json
-
-  Update pricing.json when business pricing changes.
-*/
-
 document.addEventListener("DOMContentLoaded", async function () {
-
   const PRICING_FILE = "assets/data/pricing.json";
 
   let pricing = null;
-
-  /*
-    --------------------------------------------------
-    BASIC HELPERS
-    --------------------------------------------------
-  */
 
   function money(value) {
     const number = Number(value);
@@ -37,7 +20,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-
   function wholeMoney(value) {
     const number = Number(value);
 
@@ -53,7 +35,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-
   function numberValue(value, fallback = 0) {
     const number = Number(value);
 
@@ -64,7 +45,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     return number;
   }
 
-
   function setText(id, value) {
     const element = document.getElementById(id);
 
@@ -73,17 +53,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-
-  /*
-    --------------------------------------------------
-    LOAD PRICING
-    --------------------------------------------------
-  */
-
   async function loadPricing() {
-
     try {
-
       const response = await fetch(PRICING_FILE, {
         cache: "no-store"
       });
@@ -98,13 +69,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       pricing = await response.json();
 
       validatePricing();
-
       populatePricingPage();
-
       initializeCalculator();
 
     } catch (error) {
-
       console.error(
         "RCW pricing error:",
         error
@@ -114,15 +82,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-
-  /*
-    --------------------------------------------------
-    VALIDATE PRICING FILE
-    --------------------------------------------------
-  */
-
   function validatePricing() {
-
     const requiredFields = [
       "inPersonNotary",
       "ronNotary",
@@ -139,7 +99,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     ];
 
     requiredFields.forEach(function (field) {
-
       if (
         pricing[field] === undefined ||
         pricing[field] === null
@@ -148,20 +107,10 @@ document.addEventListener("DOMContentLoaded", async function () {
           "Missing pricing field: " + field
         );
       }
-
     });
-
   }
 
-
-  /*
-    --------------------------------------------------
-    POPULATE PUBLIC PRICES
-    --------------------------------------------------
-  */
-
   function populatePricingPage() {
-
     const inPersonNotary =
       numberValue(pricing.inPersonNotary);
 
@@ -186,84 +135,70 @@ document.addEventListener("DOMContentLoaded", async function () {
     const waiting =
       numberValue(pricing.waitingPer15Minutes);
 
-
     setText(
       "in-person-price",
       money(inPersonNotary)
     );
-
 
     setText(
       "ron-notary-price",
       money(ronNotary)
     );
 
-
     setText(
       "ron-service-price",
       money(ronService)
     );
-
 
     setText(
       "mobile-base-price",
       money(mobileBase)
     );
 
-
     setText(
       "mobile-base-summary",
       money(mobileBase)
     );
-
 
     setText(
       "same-day-price",
       money(sameDay)
     );
 
-
     setText(
       "after-hours-price",
       money(afterHours)
     );
-
 
     setText(
       "holiday-price",
       money(holiday)
     );
 
-
     setText(
       "waiting-price",
       money(waiting)
     );
-
 
     setText(
       "estimate-mobile-base",
       money(mobileBase)
     );
 
-
     setText(
       "estimate-notary",
       money(inPersonNotary)
     );
-
 
     setText(
       "ron-preview-notary",
       wholeMoney(ronNotary)
     );
 
-
     setText(
       "ron-preview-service",
       wholeMoney(ronService)
     );
-
 
     setText(
       "ron-preview-total",
@@ -272,50 +207,15 @@ document.addEventListener("DOMContentLoaded", async function () {
       )
     );
 
-
     setText(
       "estimate-total",
       money(
         mobileBase + inPersonNotary
       )
     );
-
   }
 
-
-  /*
-    --------------------------------------------------
-    TRAVEL CALCULATION
-    --------------------------------------------------
-
-    Current rule:
-
-    Premium gasoline benchmark
-    +
-    $1.00 operating allowance
-    =
-    RCW travel calculation rate
-
-    Example:
-
-    Premium = $4.15
-    Allowance = $1.00
-    RCW Rate = $5.15
-
-    Travel charge:
-
-    Round-trip miles
-    divided by
-    vehicle MPG
-    multiplied by
-    RCW travel calculation rate
-
-    Final travel charge is rounded UP
-    to the next whole dollar.
-  */
-
   function calculateTravelCharge(oneWayMiles) {
-
     const miles =
       Math.max(
         0,
@@ -375,20 +275,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       rawTravelCharge: rawTravelCharge,
       finalTravelCharge: finalTravelCharge
     };
-
   }
 
-
-  /*
-    --------------------------------------------------
-    SPECIAL SCHEDULING FEES
-    --------------------------------------------------
-  */
-
   function getSchedulingFee(type) {
-
     switch (type) {
-
       case "same-day":
         return numberValue(
           pricing.sameDay
@@ -406,20 +296,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       default:
         return 0;
-
     }
-
   }
 
-
-  /*
-    --------------------------------------------------
-    MOBILE ESTIMATE
-    --------------------------------------------------
-  */
-
   function calculateMobileEstimate() {
-
     if (!pricing) {
       return;
     }
@@ -439,7 +319,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         "appointment-type"
       );
 
-
     if (
       !milesInput ||
       !actsInput ||
@@ -448,7 +327,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-
     const oneWayMiles =
       Math.max(
         0,
@@ -456,7 +334,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           milesInput.value
         )
       );
-
 
     const notarialActs =
       Math.max(
@@ -469,22 +346,18 @@ document.addEventListener("DOMContentLoaded", async function () {
         )
       );
 
-
     actsInput.value =
       notarialActs;
-
 
     const travel =
       calculateTravelCharge(
         oneWayMiles
       );
 
-
     const mobileBase =
       numberValue(
         pricing.mobileBase
       );
-
 
     const notaryCharge =
       notarialActs *
@@ -492,12 +365,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         pricing.inPersonNotary
       );
 
-
     const specialFee =
       getSchedulingFee(
         appointmentType.value
       );
-
 
     const total =
       mobileBase +
@@ -505,12 +376,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       notaryCharge +
       specialFee;
 
-
     setText(
       "estimate-mobile-base",
       money(mobileBase)
     );
-
 
     setText(
       "estimate-distance",
@@ -519,14 +388,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       )
     );
 
-
     setText(
       "estimate-travel",
       money(
         travel.finalTravelCharge
       )
     );
-
 
     setText(
       "estimate-notary",
@@ -535,7 +402,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       )
     );
 
-
     setText(
       "estimate-special",
       money(
@@ -543,28 +409,17 @@ document.addEventListener("DOMContentLoaded", async function () {
       )
     );
 
-
     setText(
       "estimate-total",
       money(total)
     );
 
-
     checkTravelRadius(
       oneWayMiles
     );
-
   }
 
-
-  /*
-    --------------------------------------------------
-    MILE DISPLAY
-    --------------------------------------------------
-  */
-
   function formatMiles(miles) {
-
     const value =
       numberValue(miles);
 
@@ -578,35 +433,23 @@ document.addEventListener("DOMContentLoaded", async function () {
       value.toFixed(1) +
       " miles"
     );
-
   }
 
-
-  /*
-    --------------------------------------------------
-    TRAVEL RADIUS
-    --------------------------------------------------
-  */
-
   function checkTravelRadius(oneWayMiles) {
-
     const radius =
       numberValue(
         pricing.automaticTravelRadius,
         40
       );
 
-
     const existingMessage =
       document.getElementById(
         "travel-radius-message"
       );
 
-
     if (existingMessage) {
       existingMessage.remove();
     }
-
 
     if (
       oneWayMiles <= radius
@@ -614,178 +457,120 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-
     const calculatorButton =
       document.getElementById(
         "calculate-mobile"
       );
 
-
     if (!calculatorButton) {
       return;
     }
 
-
     const message =
       document.createElement("p");
-
 
     message.id =
       "travel-radius-message";
 
-
     message.className =
       "small-print";
-
 
     message.textContent =
       "This trip exceeds the standard " +
       radius +
-      "-mile one-way service radius. " +
-      "Please request a custom travel quote.";
-
+      "-mile one-way service radius. Please request a custom travel quote.";
 
     calculatorButton.insertAdjacentElement(
       "afterend",
       message
     );
-
   }
 
-
-  /*
-    --------------------------------------------------
-    INITIALIZE CALCULATOR
-    --------------------------------------------------
-  */
-
   function initializeCalculator() {
-
     const calculatorButton =
       document.getElementById(
         "calculate-mobile"
       );
 
-
     if (!calculatorButton) {
       return;
     }
-
 
     calculatorButton.addEventListener(
       "click",
       calculateMobileEstimate
     );
 
-
     const milesInput =
       document.getElementById(
         "one-way-miles"
       );
-
 
     const actsInput =
       document.getElementById(
         "notarial-acts"
       );
 
-
     const appointmentType =
       document.getElementById(
         "appointment-type"
       );
 
-
     if (milesInput) {
-
       milesInput.addEventListener(
         "keydown",
         function (event) {
-
           if (event.key === "Enter") {
             calculateMobileEstimate();
           }
-
         }
       );
-
     }
 
-
     if (actsInput) {
-
       actsInput.addEventListener(
         "change",
         calculateMobileEstimate
       );
-
     }
 
-
     if (appointmentType) {
-
       appointmentType.addEventListener(
         "change",
         calculateMobileEstimate
       );
-
     }
-
   }
 
-
-  /*
-    --------------------------------------------------
-    ERROR HANDLING
-    --------------------------------------------------
-  */
-
   function showPricingError() {
-
     const calculatorButton =
       document.getElementById(
         "calculate-mobile"
       );
 
-
     if (!calculatorButton) {
       return;
     }
 
-
     calculatorButton.disabled = true;
-
 
     calculatorButton.textContent =
       "Pricing Temporarily Unavailable";
 
-
     const message =
       document.createElement("p");
-
 
     message.className =
       "small-print";
 
-
     message.textContent =
       "Current pricing could not be loaded. Please request a quote before scheduling.";
-
 
     calculatorButton.insertAdjacentElement(
       "afterend",
       message
     );
-
   }
 
-
-  /*
-    --------------------------------------------------
-    START
-    --------------------------------------------------
-  */
-
   loadPricing();
-
 });
