@@ -4,23 +4,25 @@ RCW SR. NOTARY SERVICES
 FILE: assets/js/main.js
 
 CHANGE NOTES
-Version: 1.1
+Version: 1.1.1
 Date: August 19, 2026
 
 Changes:
-- Added sessionStorage for appointment form data.
-- Restores customer entries when returning to the form.
-- Added unique submission ID tracking.
-- Added New Request and Updated Request identification.
-- Added conditional address requirement for mobile service.
-- Preserved Formspree submission.
-- Added Google Sheets web app submission.
-- Added independent spreadsheet error handling.
-- Added form submission status messages.
+- Fixed successful form submission hanging before thank-you page.
+- Removed dependency on Google Sheets response before redirect.
+- Google Sheets logging now runs independently after Formspree success.
+- Added navigator.sendBeacon support for spreadsheet logging.
+- Added fetch keepalive fallback for browsers without sendBeacon.
+- Preserved appointment form session storage.
+- Preserved Review or Change My Request workflow.
+- Preserved unique submission ID tracking.
+- Preserved New Request versus Updated Request tracking.
+- Preserved Formspree email submission.
+- Preserved mobile address requirement.
 - Preserved responsive navigation and current-year functions.
 
 GITHUB COMMIT:
-Add appointment persistence and dual submission tracking
+Fix appointment redirect and background spreadsheet logging
 =========================================================
 */
 
@@ -286,7 +288,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    SUBMISSION ID
+    CREATE SUBMISSION ID
     =====================================================
     */
 
@@ -375,20 +377,9 @@ document.addEventListener(
       }
 
 
-      if (
+      streetAddress.required =
         serviceType.value ===
-        "Mobile Notary"
-      ) {
-
-        streetAddress.required =
-          true;
-
-      } else {
-
-        streetAddress.required =
-          false;
-
-      }
+        "Mobile Notary";
 
     }
 
@@ -518,9 +509,6 @@ document.addEventListener(
           );
 
 
-        updateAddressRequirement();
-
-
       } catch (error) {
 
         console.error(
@@ -584,11 +572,11 @@ document.addEventListener(
 
     /*
     =====================================================
-    GOOGLE SHEETS
+    PREPARE GOOGLE SHEETS PAYLOAD
     =====================================================
     */
 
-    async function sendToGoogleSheets(
+    function buildSheetPayload(
       formData
     ) {
 
@@ -609,13 +597,90 @@ document.addEventListener(
       }
 
 
-      await fetch(
+      return sheetData;
+
+    }
+
+
+    /*
+    =====================================================
+    SEND GOOGLE SHEETS COPY IN BACKGROUND
+
+    IMPORTANT:
+    Google Sheets logging is secondary.
+
+    Formspree is the primary customer intake system.
+    Spreadsheet problems must never trap the customer
+    on the appointment page.
+    =====================================================
+    */
+
+    function sendToGoogleSheets(
+      formData
+    ) {
+
+      const sheetData =
+        buildSheetPayload(
+          formData
+        );
+
+
+      /*
+      -----------------------------------------------
+      PREFERRED METHOD
+      SEND BEACON
+      -----------------------------------------------
+      */
+
+      if (
+        navigator.sendBeacon
+      ) {
+
+        try {
+
+          const sent =
+            navigator.sendBeacon(
+              GOOGLE_SHEETS_URL,
+              sheetData
+            );
+
+
+          console.log(
+            "Google Sheets beacon dispatched:",
+            sent
+          );
+
+
+          return;
+
+        } catch (beaconError) {
+
+          console.error(
+            "Google Sheets beacon failed:",
+            beaconError
+          );
+
+        }
+
+      }
+
+
+      /*
+      -----------------------------------------------
+      FALLBACK METHOD
+      FETCH WITH KEEPALIVE
+      -----------------------------------------------
+      */
+
+      fetch(
         GOOGLE_SHEETS_URL,
         {
 
           method: "POST",
 
           mode: "no-cors",
+
+          keepalive: true,
 
           headers: {
 
@@ -628,7 +693,17 @@ document.addEventListener(
             sheetData.toString()
 
         }
-      );
+      )
+        .catch(
+          function (sheetError) {
+
+            console.error(
+              "Google Sheets background logging failed:",
+              sheetError
+            );
+
+          }
+        );
 
     }
 
@@ -650,6 +725,12 @@ document.addEventListener(
 
         saveForm();
 
+
+        /*
+        -----------------------------------------------
+        VALIDATION
+        -----------------------------------------------
+        */
 
         if (
           !contactForm.checkValidity()
@@ -678,6 +759,12 @@ document.addEventListener(
         }
 
 
+        /*
+        -----------------------------------------------
+        BUTTON STATUS
+        -----------------------------------------------
+        */
+
         if (submitButton) {
 
           submitButton.disabled =
@@ -705,9 +792,10 @@ document.addEventListener(
 
 
           /*
-          ===============================================
-          SEND TO FORMSPREE
-          ===============================================
+          =============================================
+          PRIMARY SUBMISSION
+          FORMSPREE
+          =============================================
           */
 
           const formspreeResponse =
@@ -736,39 +824,30 @@ document.addEventListener(
           ) {
 
             throw new Error(
-              "Formspree could not accept the request."
+              "Your appointment request could not be submitted."
             );
 
           }
 
 
           /*
-          ===============================================
-          SEND COPY TO GOOGLE SHEETS
-          ===============================================
+          =============================================
+          FORMSPREE SUCCEEDED
+          =============================================
           */
 
-          try {
 
-            await sendToGoogleSheets(
-              formData
-            );
+          /*
+          Send spreadsheet copy without waiting.
+          */
 
-
-          } catch (sheetError) {
-
-            console.error(
-              "Google Sheets logging failed:",
-              sheetError
-            );
-
-          }
+          sendToGoogleSheets(
+            formData
+          );
 
 
           /*
-          ===============================================
-          NEXT SUBMISSION BECOMES AN UPDATE
-          ===============================================
+          Mark any later resubmission as an update.
           */
 
           sessionStorage.setItem(
@@ -783,14 +862,14 @@ document.addEventListener(
           );
 
 
-          window.setTimeout(
-            function () {
+          /*
+          =============================================
+          GO DIRECTLY TO THANK-YOU PAGE
+          =============================================
+          */
 
-              window.location.href =
-                "thank-you.html";
-
-            },
-            500
+          window.location.assign(
+            "thank-you.html"
           );
 
 
@@ -804,7 +883,7 @@ document.addEventListener(
 
           setFormMessage(
             error.message ||
-              "Your request could not be submitted.",
+            "Your request could not be submitted.",
             true
           );
 
