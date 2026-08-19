@@ -1,27 +1,70 @@
+<!--
+=========================================================
+RCW SR. NOTARY SERVICES
+FILE: contact.html
+
+CHANGE NOTES
+Version: 1.1
+Date: August 19, 2026
+
+Changes:
+- Added temporary appointment form persistence.
+- Added support for reviewing and changing submitted requests.
+- Added unique submission ID tracking.
+- Added New Request versus Updated Request tracking.
+- Added preferred contact method.
+- Added Remote Online Notary and Mobile Notary choices.
+- Added mobile appointment address information.
+- Preserved Formspree appointment submission.
+- Prepared form data for Google Sheets integration.
+
+GITHUB COMMIT:
+Add persistent appointment review and resubmission workflow
+=========================================================
+-->
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <meta
     name="description"
-    content="Request a Remote Online Notary or mobile notary appointment with RCW Sr. Notary Services. Flexible scheduling, evening availability, West Coast friendly appointments, and mobile service by request."
+    content="Request a Remote Online Notary or mobile notary appointment with RCW Sr. Notary Services."
   >
 
-  <meta name="theme-color" content="#f47a20">
+  <meta
+    name="theme-color"
+    content="#f47a20"
+  >
 
-  <title>Contact & Appointments | RCW Sr. Notary Services</title>
+  <title>
+    Contact & Appointments | RCW Sr. Notary Services
+  </title>
 
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <link
+    rel="stylesheet"
+    href="assets/css/styles.css"
+  >
 
-  <script src="assets/js/main.js" defer></script>
+  <script
+    src="assets/js/main.js"
+    defer
+  ></script>
 </head>
 
 <body>
 
-  <a class="skip-link" href="#main-content">
+  <a
+    class="skip-link"
+    href="#main-content"
+  >
     Skip to main content
   </a>
 
@@ -47,7 +90,10 @@
         aria-expanded="false"
         aria-controls="primary-navigation"
       >
-        <span class="sr-only">Open navigation menu</span>
+        <span class="sr-only">
+          Open navigation menu
+        </span>
+
         <span></span>
         <span></span>
         <span></span>
@@ -58,12 +104,33 @@
         class="primary-nav"
         aria-label="Primary navigation"
       >
-        <a href="index.html">Home</a>
-        <a href="services.html">Services</a>
-        <a href="pricing.html">Pricing</a>
-        <a href="about.html">About</a>
-        <a href="faq.html">FAQ</a>
-        <a class="active" href="contact.html">Contact</a>
+
+        <a href="index.html">
+          Home
+        </a>
+
+        <a href="services.html">
+          Services
+        </a>
+
+        <a href="pricing.html">
+          Pricing
+        </a>
+
+        <a href="about.html">
+          About
+        </a>
+
+        <a href="faq.html">
+          FAQ
+        </a>
+
+        <a
+          class="active"
+          href="contact.html"
+        >
+          Contact
+        </a>
 
         <a
           class="button button-small"
@@ -71,11 +138,13 @@
         >
           Request an Appointment
         </a>
+
       </nav>
 
     </div>
 
   </header>
+
 
   <main id="main-content">
 
@@ -100,10 +169,8 @@
           </p>
 
           <p class="hero-text">
-            The more information you provide now,
-            the faster I can review the request,
-            estimate pricing,
-            and respond.
+            Your entries are temporarily saved in this browser tab.
+            You can return, review them, make changes, and resubmit if necessary.
           </p>
 
           <div class="hero-actions">
@@ -124,19 +191,8 @@
 
           </div>
 
-          <ul
-            class="hero-facts"
-            aria-label="Contact highlights"
-          >
-            <li>7:00 AM to 11:00 PM Eastern</li>
-            <li>Earlier and later appointments considered</li>
-            <li>West Coast friendly scheduling</li>
-            <li>Mobile appointments by request</li>
-            <li>Veteran owned</li>
-            <li>Clear pricing before confirmation</li>
-          </ul>
-
         </div>
+
 
         <aside
           class="availability-card"
@@ -152,11 +208,7 @@
           </h2>
 
           <p>
-            Tell me how you want to be contacted,
-            your location,
-            service type,
-            preferred appointment time,
-            and basic document information.
+            Your appointment is not confirmed until I review and accept the request.
           </p>
 
           <div class="hours-box">
@@ -171,18 +223,12 @@
 
           </div>
 
-          <a
-            class="text-link"
-            href="#appointment-form"
-          >
-            Complete the request form
-          </a>
-
         </aside>
 
       </div>
 
     </section>
+
 
     <section
       id="appointment-form"
@@ -197,16 +243,17 @@
             Appointment Request
           </p>
 
-          <h2 style="color: white;">
+          <h2 style="color:white;">
             Send your request.
           </h2>
 
-          <p style="color: rgba(255,255,255,0.84);">
-            Submitting this form sends an appointment request.
+          <p style="color:rgba(255,255,255,0.84);">
+            Submitting this form sends a request.
             It does not confirm the appointment.
           </p>
 
         </div>
+
 
         <form
           class="service-choice-card"
@@ -220,6 +267,20 @@
             name="_subject"
             value="New RCW Appointment Request"
           >
+
+          <input
+            type="hidden"
+            id="submission-id"
+            name="submissionId"
+          >
+
+          <input
+            type="hidden"
+            id="submission-type"
+            name="submissionType"
+            value="New Request"
+          >
+
 
           <div class="form-grid">
 
@@ -239,6 +300,7 @@
 
             </div>
 
+
             <div class="form-group">
 
               <label for="last-name">
@@ -254,6 +316,7 @@
               >
 
             </div>
+
 
             <div class="form-group">
 
@@ -271,6 +334,7 @@
 
             </div>
 
+
             <div class="form-group">
 
               <label for="phone">
@@ -287,6 +351,7 @@
 
             </div>
 
+
             <div class="form-group">
 
               <label for="preferred-contact">
@@ -298,6 +363,7 @@
                 name="preferredContact"
                 required
               >
+
                 <option value="">
                   Select one
                 </option>
@@ -309,9 +375,11 @@
                 <option value="Email">
                   Email
                 </option>
+
               </select>
 
             </div>
+
 
             <div class="form-group">
 
@@ -324,6 +392,7 @@
                 name="bestContactTime"
                 required
               >
+
                 <option value="">
                   Select one
                 </option>
@@ -343,9 +412,11 @@
                 <option value="Anytime">
                   Anytime
                 </option>
+
               </select>
 
             </div>
+
 
             <div class="form-group">
 
@@ -358,6 +429,7 @@
                 name="serviceType"
                 required
               >
+
                 <option value="">
                   Select a service
                 </option>
@@ -373,9 +445,11 @@
                 <option value="Not Sure">
                   Not Sure Yet
                 </option>
+
               </select>
 
             </div>
+
 
             <div class="form-group">
 
@@ -388,6 +462,7 @@
                 name="timeZone"
                 required
               >
+
                 <option value="">
                   Select your time zone
                 </option>
@@ -419,9 +494,11 @@
                 <option value="Other">
                   Other
                 </option>
+
               </select>
 
             </div>
+
 
             <div class="form-group full">
 
@@ -439,6 +516,7 @@
 
             </div>
 
+
             <div class="form-group">
 
               <label for="city">
@@ -454,6 +532,7 @@
               >
 
             </div>
+
 
             <div class="form-group">
 
@@ -473,6 +552,7 @@
 
             </div>
 
+
             <div class="form-group">
 
               <label for="zip-code">
@@ -491,6 +571,7 @@
 
             </div>
 
+
             <div class="form-group">
 
               <label for="preferred-date">
@@ -505,6 +586,7 @@
               >
 
             </div>
+
 
             <div class="form-group">
 
@@ -521,6 +603,7 @@
 
             </div>
 
+
             <div class="form-group">
 
               <label for="alternate-date">
@@ -534,6 +617,7 @@
               >
 
             </div>
+
 
             <div class="form-group">
 
@@ -549,6 +633,7 @@
 
             </div>
 
+
             <div class="form-group">
 
               <label for="document-type">
@@ -559,11 +644,11 @@
                 type="text"
                 id="document-type"
                 name="documentType"
-                placeholder="Example: Affidavit"
                 required
               >
 
             </div>
+
 
             <div class="form-group">
 
@@ -576,12 +661,12 @@
                 id="signers"
                 name="signers"
                 min="1"
-                step="1"
                 value="1"
                 required
               >
 
             </div>
+
 
             <div class="form-group">
 
@@ -594,12 +679,12 @@
                 id="notarial-acts"
                 name="notarialActs"
                 min="1"
-                step="1"
                 value="1"
                 required
               >
 
             </div>
+
 
             <div class="form-group">
 
@@ -612,6 +697,7 @@
                 name="urgency"
                 required
               >
+
                 <option value="Standard">
                   Standard Appointment
                 </option>
@@ -621,7 +707,7 @@
                 </option>
 
                 <option value="After Hours">
-                  Before 7 AM or After 11 PM
+                  Outside Normal Hours
                 </option>
 
                 <option value="Holiday">
@@ -631,9 +717,11 @@
                 <option value="Not Sure">
                   Not Sure
                 </option>
+
               </select>
 
             </div>
+
 
             <div class="form-group">
 
@@ -646,6 +734,7 @@
                 name="witnesses"
                 required
               >
+
                 <option value="">
                   Select one
                 </option>
@@ -661,9 +750,11 @@
                 <option value="Not Sure">
                   Not Sure
                 </option>
+
               </select>
 
             </div>
+
 
             <div class="form-group full">
 
@@ -674,10 +765,10 @@
               <textarea
                 id="special-circumstances"
                 name="specialCircumstances"
-                placeholder="Examples: limited mobility, hospital room, assisted living, caregiver situation, transportation issue, gate instructions, parking information, or scheduling concern."
               ></textarea>
 
             </div>
+
 
             <div class="form-group full">
 
@@ -688,14 +779,15 @@
               <textarea
                 id="message"
                 name="message"
-                placeholder="Tell me anything else I should know before responding."
               ></textarea>
 
             </div>
 
+
             <div class="form-group full">
 
               <label>
+
                 <input
                   type="checkbox"
                   id="pricing-confirmation"
@@ -705,13 +797,16 @@
                 >
 
                 I understand that my appointment is not confirmed until RCW Sr. Notary Services reviews and accepts the request.
+
               </label>
 
             </div>
 
+
             <div class="form-group full">
 
               <label>
+
                 <input
                   type="checkbox"
                   id="privacy-confirmation"
@@ -720,10 +815,12 @@
                   required
                 >
 
-                I have reviewed the Privacy Policy and understand that I should not submit Social Security numbers, financial account numbers, passwords, or full sensitive documents through this form.
+                I have reviewed the Privacy Policy and understand that I should not submit highly sensitive information through this form.
+
               </label>
 
             </div>
+
 
             <div class="form-group full">
 
@@ -734,6 +831,7 @@
               ></div>
 
             </div>
+
 
             <div class="form-group full">
 
@@ -757,6 +855,7 @@
 
   </main>
 
+
   <footer class="site-footer">
 
     <div class="container footer-grid">
@@ -770,6 +869,7 @@
         >
 
       </div>
+
 
       <div>
 
@@ -787,6 +887,7 @@
 
       </div>
 
+
       <div>
 
         <p>
@@ -798,11 +899,11 @@
         </p>
 
         <p>
-          Normal Hours:
-          7:00 AM to 11:00 PM Eastern
+          Normal Hours: 7:00 AM to 11:00 PM Eastern
         </p>
 
       </div>
+
 
       <div>
 
@@ -817,9 +918,13 @@
         </p>
 
         <p>
-          <a href="privacy.html">Privacy</a>
+          <a href="privacy.html">
+            Privacy
+          </a>
           |
-          <a href="terms.html">Terms</a>
+          <a href="terms.html">
+            Terms
+          </a>
         </p>
 
       </div>
