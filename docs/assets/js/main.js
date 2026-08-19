@@ -1,393 +1,643 @@
+/*
+=========================================================
+RCW SR. NOTARY SERVICES
+FILE: assets/js/main.js
+
+CHANGE NOTES
+Version: 1.1
+Date: August 19, 2026
+
+Changes:
+- Added sessionStorage for appointment form data.
+- Restores customer entries when returning to the form.
+- Added unique submission ID tracking.
+- Added New Request and Updated Request identification.
+- Added conditional address requirement for mobile service.
+- Preserved Formspree submission.
+- Added Google Sheets web app submission.
+- Added independent spreadsheet error handling.
+- Added form submission status messages.
+- Preserved responsive navigation and current-year functions.
+
+GITHUB COMMIT:
+Add appointment persistence and dual submission tracking
+=========================================================
+*/
+
 "use strict";
 
-document.addEventListener("DOMContentLoaded", function () {
 
-  /*
-    --------------------------------------------------
-    RCW SR. NOTARY SERVICES
-    MAIN SITE JAVASCRIPT
-
-    Appointment workflow:
-
-    1. Customer submits website form
-    2. Formspree receives submission
-    3. Formspree sends email notification
-    4. Google Apps Script receives same submission
-    5. Google Sheet receives new appointment row
-    6. Customer goes to thank-you.html
-    --------------------------------------------------
-  */
-
-  const GOOGLE_SHEETS_URL =
-    "https://script.google.com/macros/s/AKfycbyaOMyJdieQHb2JKX8jZduNBDh0HkQVpEaIirkfAXqVOkVL1Gf-Z0aCm8JpM4PUw-Ur/exec";
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
 
 
-  /*
-    --------------------------------------------------
+    /*
+    =====================================================
+    CONFIGURATION
+    =====================================================
+    */
+
+    const GOOGLE_SHEETS_URL =
+      "https://script.google.com/macros/s/AKfycbyaOMyJdieQHb2JKX8jZduNBDh0HkQVpEaIirkfAXqVOkVL1Gf-Z0aCm8JpM4PUw-Ur/exec";
+
+
+    const STORAGE_KEY =
+      "rcwAppointmentForm";
+
+
+    const SUBMISSION_ID_KEY =
+      "rcwSubmissionId";
+
+
+    const SUBMISSION_TYPE_KEY =
+      "rcwSubmissionType";
+
+
+    /*
+    =====================================================
     CURRENT YEAR
-    --------------------------------------------------
-  */
-
-  const currentYear =
-    document.getElementById("current-year");
-
-  if (currentYear) {
-    currentYear.textContent =
-      new Date().getFullYear();
-  }
-
-
-  /*
-    --------------------------------------------------
-    MOBILE NAVIGATION
-    --------------------------------------------------
-  */
-
-  const menuToggle =
-    document.querySelector(".menu-toggle");
-
-  const primaryNav =
-    document.querySelector(".primary-nav");
-
-
-  if (menuToggle && primaryNav) {
-
-    menuToggle.addEventListener(
-      "click",
-      function () {
-
-        const isOpen =
-          primaryNav.classList.toggle("open");
-
-        menuToggle.setAttribute(
-          "aria-expanded",
-          isOpen ? "true" : "false"
-        );
-      }
-    );
-
-
-    primaryNav
-      .querySelectorAll("a")
-      .forEach(function (link) {
-
-        link.addEventListener(
-          "click",
-          function () {
-
-            if (window.innerWidth <= 900) {
-
-              primaryNav.classList.remove("open");
-
-              menuToggle.setAttribute(
-                "aria-expanded",
-                "false"
-              );
-            }
-          }
-        );
-      });
-
-
-    document.addEventListener(
-      "click",
-      function (event) {
-
-        const clickedInsideNav =
-          primaryNav.contains(event.target);
-
-        const clickedMenuButton =
-          menuToggle.contains(event.target);
-
-        if (
-          window.innerWidth <= 900 &&
-          primaryNav.classList.contains("open") &&
-          !clickedInsideNav &&
-          !clickedMenuButton
-        ) {
-
-          primaryNav.classList.remove("open");
-
-          menuToggle.setAttribute(
-            "aria-expanded",
-            "false"
-          );
-        }
-      }
-    );
-
-
-    window.addEventListener(
-      "resize",
-      function () {
-
-        if (window.innerWidth > 900) {
-
-          primaryNav.classList.remove("open");
-
-          menuToggle.setAttribute(
-            "aria-expanded",
-            "false"
-          );
-        }
-      }
-    );
-  }
-
-
-  /*
-    --------------------------------------------------
-    SMOOTH INTERNAL LINKS
-    --------------------------------------------------
-  */
-
-  const internalLinks =
-    document.querySelectorAll(
-      'a[href^="#"]:not([href="#"])'
-    );
-
-
-  internalLinks.forEach(function (link) {
-
-    link.addEventListener(
-      "click",
-      function (event) {
-
-        const targetId =
-          link.getAttribute("href");
-
-        const target =
-          document.querySelector(targetId);
-
-        if (!target) {
-          return;
-        }
-
-        event.preventDefault();
-
-        target.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-      }
-    );
-  });
-
-
-  /*
-    --------------------------------------------------
-    PREVENT PAST APPOINTMENT DATES
-    --------------------------------------------------
-  */
-
-  const dateInputs =
-    document.querySelectorAll(
-      'input[type="date"]'
-    );
-
-
-  if (dateInputs.length > 0) {
-
-    const today =
-      new Date();
-
-    const year =
-      today.getFullYear();
-
-    const month =
-      String(
-        today.getMonth() + 1
-      ).padStart(2, "0");
-
-    const day =
-      String(
-        today.getDate()
-      ).padStart(2, "0");
-
-    const todayString =
-      `${year}-${month}-${day}`;
-
-
-    dateInputs.forEach(function (input) {
-
-      input.min =
-        todayString;
-    });
-  }
-
-
-  /*
-    --------------------------------------------------
-    APPOINTMENT FORM
-    --------------------------------------------------
-  */
-
-  const contactForm =
-    document.getElementById(
-      "contact-form"
-    );
-
-  const serviceType =
-    document.getElementById(
-      "service-type"
-    );
-
-  const streetAddress =
-    document.getElementById(
-      "street-address"
-    );
-
-  const formStatus =
-    document.getElementById(
-      "form-status"
-    );
-
-  const submitButton =
-    document.getElementById(
-      "submit-request"
-    );
-
-
-  /*
-    --------------------------------------------------
-    MOBILE ADDRESS REQUIREMENT
-    --------------------------------------------------
-  */
-
-  function updateAddressRequirement() {
-
-    if (
-      !serviceType ||
-      !streetAddress
-    ) {
-      return;
-    }
-
-
-    if (
-      serviceType.value ===
-      "Mobile Notary"
-    ) {
-
-      streetAddress.required =
-        true;
-
-      streetAddress.placeholder =
-        "Required for mobile appointments";
-
-    } else {
-
-      streetAddress.required =
-        false;
-
-      streetAddress.placeholder =
-        "Required for mobile appointments";
-    }
-  }
-
-
-  if (
-    serviceType &&
-    streetAddress
-  ) {
-
-    serviceType.addEventListener(
-      "change",
-      updateAddressRequirement
-    );
-
-    updateAddressRequirement();
-  }
-
-
-  /*
-    --------------------------------------------------
-    FORM STATUS MESSAGE
-    --------------------------------------------------
-  */
-
-  function setFormMessage(
-    message,
-    isError
-  ) {
-
-    if (!formStatus) {
-      return;
-    }
-
-
-    formStatus.textContent =
-      message;
-
-    formStatus.style.fontWeight =
-      "700";
-
-    formStatus.style.color =
-      isError
-        ? "#a12b2b"
-        : "#1f7a4d";
-  }
-
-
-  /*
-    --------------------------------------------------
-    SEND TO GOOGLE SHEETS
-    --------------------------------------------------
-  */
-
-  async function sendToGoogleSheets(
-    formData
-  ) {
-
-    const sheetData =
-      new URLSearchParams();
-
-
-    for (
-      const [key, value]
-      of formData.entries()
-    ) {
-
-      sheetData.append(
-        key,
-        value
+    =====================================================
+    */
+
+    const currentYear =
+      document.getElementById(
+        "current-year"
       );
+
+
+    if (currentYear) {
+
+      currentYear.textContent =
+        new Date().getFullYear();
+
     }
 
 
     /*
-      no-cors is intentional.
-
-      Google Apps Script web apps can redirect
-      responses through Google infrastructure.
-
-      We only need to send the appointment data.
-      The spreadsheet script performs the row insert.
+    =====================================================
+    MOBILE NAVIGATION
+    =====================================================
     */
 
-    await fetch(
-      GOOGLE_SHEETS_URL,
-      {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type":
-            "application/x-www-form-urlencoded;charset=UTF-8"
-        },
-        body:
-          sheetData.toString()
+    const menuToggle =
+      document.querySelector(
+        ".menu-toggle"
+      );
+
+
+    const primaryNav =
+      document.querySelector(
+        ".primary-nav"
+      );
+
+
+    if (
+      menuToggle &&
+      primaryNav
+    ) {
+
+      menuToggle.addEventListener(
+        "click",
+        function () {
+
+          const isOpen =
+            primaryNav.classList.toggle(
+              "open"
+            );
+
+
+          menuToggle.setAttribute(
+            "aria-expanded",
+            isOpen
+              ? "true"
+              : "false"
+          );
+
+        }
+      );
+
+
+      primaryNav
+        .querySelectorAll("a")
+        .forEach(
+          function (link) {
+
+            link.addEventListener(
+              "click",
+              function () {
+
+                if (
+                  window.innerWidth <= 900
+                ) {
+
+                  primaryNav.classList.remove(
+                    "open"
+                  );
+
+
+                  menuToggle.setAttribute(
+                    "aria-expanded",
+                    "false"
+                  );
+
+                }
+
+              }
+            );
+
+          }
+        );
+
+    }
+
+
+    /*
+    =====================================================
+    SMOOTH SCROLL
+    =====================================================
+    */
+
+    document
+      .querySelectorAll(
+        'a[href^="#"]:not([href="#"])'
+      )
+      .forEach(
+        function (link) {
+
+          link.addEventListener(
+            "click",
+            function (event) {
+
+              const target =
+                document.querySelector(
+                  link.getAttribute("href")
+                );
+
+
+              if (!target) {
+                return;
+              }
+
+
+              event.preventDefault();
+
+
+              target.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+
+            }
+          );
+
+        }
+      );
+
+
+    /*
+    =====================================================
+    DATE LIMITS
+    =====================================================
+    */
+
+    const now =
+      new Date();
+
+
+    const todayString =
+      now.getFullYear() +
+      "-" +
+      String(
+        now.getMonth() + 1
+      ).padStart(2, "0") +
+      "-" +
+      String(
+        now.getDate()
+      ).padStart(2, "0");
+
+
+    document
+      .querySelectorAll(
+        'input[type="date"]'
+      )
+      .forEach(
+        function (input) {
+
+          input.min =
+            todayString;
+
+        }
+      );
+
+
+    /*
+    =====================================================
+    APPOINTMENT FORM
+    =====================================================
+    */
+
+    const contactForm =
+      document.getElementById(
+        "contact-form"
+      );
+
+
+    if (!contactForm) {
+      return;
+    }
+
+
+    const serviceType =
+      document.getElementById(
+        "service-type"
+      );
+
+
+    const streetAddress =
+      document.getElementById(
+        "street-address"
+      );
+
+
+    const formStatus =
+      document.getElementById(
+        "form-status"
+      );
+
+
+    const submitButton =
+      document.getElementById(
+        "submit-request"
+      );
+
+
+    const submissionIdField =
+      document.getElementById(
+        "submission-id"
+      );
+
+
+    const submissionTypeField =
+      document.getElementById(
+        "submission-type"
+      );
+
+
+    /*
+    =====================================================
+    SUBMISSION ID
+    =====================================================
+    */
+
+    function createSubmissionId() {
+
+      if (
+        window.crypto &&
+        typeof window.crypto.randomUUID ===
+          "function"
+      ) {
+
+        return crypto.randomUUID();
+
       }
+
+
+      return (
+        "RCW-" +
+        Date.now() +
+        "-" +
+        Math.random()
+          .toString(36)
+          .slice(2, 8)
+          .toUpperCase()
+      );
+
+    }
+
+
+    let submissionId =
+      sessionStorage.getItem(
+        SUBMISSION_ID_KEY
+      );
+
+
+    if (!submissionId) {
+
+      submissionId =
+        createSubmissionId();
+
+
+      sessionStorage.setItem(
+        SUBMISSION_ID_KEY,
+        submissionId
+      );
+
+    }
+
+
+    let submissionType =
+      sessionStorage.getItem(
+        SUBMISSION_TYPE_KEY
+      ) ||
+      "New Request";
+
+
+    if (submissionIdField) {
+
+      submissionIdField.value =
+        submissionId;
+
+    }
+
+
+    if (submissionTypeField) {
+
+      submissionTypeField.value =
+        submissionType;
+
+    }
+
+
+    /*
+    =====================================================
+    MOBILE ADDRESS REQUIREMENT
+    =====================================================
+    */
+
+    function updateAddressRequirement() {
+
+      if (
+        !serviceType ||
+        !streetAddress
+      ) {
+        return;
+      }
+
+
+      if (
+        serviceType.value ===
+        "Mobile Notary"
+      ) {
+
+        streetAddress.required =
+          true;
+
+      } else {
+
+        streetAddress.required =
+          false;
+
+      }
+
+    }
+
+
+    if (serviceType) {
+
+      serviceType.addEventListener(
+        "change",
+        updateAddressRequirement
+      );
+
+    }
+
+
+    /*
+    =====================================================
+    SAVE FORM DATA
+    =====================================================
+    */
+
+    function saveForm() {
+
+      const saved =
+        {};
+
+
+      const fields =
+        contactForm.querySelectorAll(
+          "input, select, textarea"
+        );
+
+
+      fields.forEach(
+        function (field) {
+
+          if (
+            !field.name ||
+            field.type === "hidden"
+          ) {
+            return;
+          }
+
+
+          if (
+            field.type ===
+            "checkbox"
+          ) {
+
+            saved[field.name] =
+              field.checked;
+
+          } else {
+
+            saved[field.name] =
+              field.value;
+
+          }
+
+        }
+      );
+
+
+      sessionStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(saved)
+      );
+
+    }
+
+
+    /*
+    =====================================================
+    RESTORE FORM DATA
+    =====================================================
+    */
+
+    function restoreForm() {
+
+      const raw =
+        sessionStorage.getItem(
+          STORAGE_KEY
+        );
+
+
+      if (!raw) {
+        return;
+      }
+
+
+      try {
+
+        const saved =
+          JSON.parse(raw);
+
+
+        Object.keys(saved)
+          .forEach(
+            function (name) {
+
+              const field =
+                contactForm.elements[name];
+
+
+              if (!field) {
+                return;
+              }
+
+
+              if (
+                field.type ===
+                "checkbox"
+              ) {
+
+                field.checked =
+                  Boolean(
+                    saved[name]
+                  );
+
+              } else {
+
+                field.value =
+                  saved[name];
+
+              }
+
+            }
+          );
+
+
+        updateAddressRequirement();
+
+
+      } catch (error) {
+
+        console.error(
+          "Could not restore appointment form:",
+          error
+        );
+
+      }
+
+    }
+
+
+    contactForm.addEventListener(
+      "input",
+      saveForm
     );
-  }
 
 
-  /*
-    --------------------------------------------------
+    contactForm.addEventListener(
+      "change",
+      saveForm
+    );
+
+
+    restoreForm();
+
+    updateAddressRequirement();
+
+
+    /*
+    =====================================================
+    STATUS MESSAGE
+    =====================================================
+    */
+
+    function setFormMessage(
+      message,
+      isError
+    ) {
+
+      if (!formStatus) {
+        return;
+      }
+
+
+      formStatus.textContent =
+        message;
+
+
+      formStatus.style.fontWeight =
+        "700";
+
+
+      formStatus.style.color =
+        isError
+          ? "#a12b2b"
+          : "#1f7a4d";
+
+    }
+
+
+    /*
+    =====================================================
+    GOOGLE SHEETS
+    =====================================================
+    */
+
+    async function sendToGoogleSheets(
+      formData
+    ) {
+
+      const sheetData =
+        new URLSearchParams();
+
+
+      for (
+        const [key, value]
+        of formData.entries()
+      ) {
+
+        sheetData.append(
+          key,
+          value
+        );
+
+      }
+
+
+      await fetch(
+        GOOGLE_SHEETS_URL,
+        {
+
+          method: "POST",
+
+          mode: "no-cors",
+
+          headers: {
+
+            "Content-Type":
+              "application/x-www-form-urlencoded;charset=UTF-8"
+
+          },
+
+          body:
+            sheetData.toString()
+
+        }
+      );
+
+    }
+
+
+    /*
+    =====================================================
     FORM SUBMISSION
-    --------------------------------------------------
-  */
-
-  if (contactForm) {
+    =====================================================
+    */
 
     contactForm.addEventListener(
       "submit",
@@ -396,56 +646,47 @@ document.addEventListener("DOMContentLoaded", function () {
         event.preventDefault();
 
 
-        /*
-          Recheck conditional requirements.
-        */
-
         updateAddressRequirement();
 
+        saveForm();
 
-        /*
-          Browser validation.
-        */
 
-        if (!contactForm.checkValidity()) {
+        if (
+          !contactForm.checkValidity()
+        ) {
 
           contactForm.reportValidity();
 
           return;
+
         }
 
 
-        /*
-          Extra mobile-address check.
-        */
+        if (submissionIdField) {
 
-        if (
-          serviceType &&
-          serviceType.value ===
-            "Mobile Notary" &&
-          streetAddress &&
-          !streetAddress.value.trim()
-        ) {
+          submissionIdField.value =
+            submissionId;
 
-          streetAddress.focus();
-
-          streetAddress.reportValidity();
-
-          return;
         }
 
 
-        /*
-          Lock button while processing.
-        */
+        if (submissionTypeField) {
+
+          submissionTypeField.value =
+            submissionType;
+
+        }
+
 
         if (submitButton) {
 
           submitButton.disabled =
             true;
 
+
           submitButton.textContent =
             "Sending Request...";
+
         }
 
 
@@ -457,13 +698,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
 
-          /*
-            Capture the form once.
-
-            The same information goes to
-            Formspree and Google Sheets.
-          */
-
           const formData =
             new FormData(
               contactForm
@@ -471,95 +705,47 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
           /*
-            ------------------------------------------
-            STEP 1
-            SEND TO FORMSPREE
-            ------------------------------------------
+          ===============================================
+          SEND TO FORMSPREE
+          ===============================================
           */
 
           const formspreeResponse =
             await fetch(
               contactForm.action,
               {
+
                 method: "POST",
 
                 body:
                   formData,
 
                 headers: {
+
                   "Accept":
                     "application/json"
+
                 }
+
               }
             );
 
 
-          /*
-            Formspree must succeed before we
-            consider the appointment submitted.
-          */
-
-          if (!formspreeResponse.ok) {
-
-            let errorMessage =
-              "Your appointment request could not be submitted. Please check your information and try again.";
-
-
-            if (
-              formspreeResponse.status ===
-              429
-            ) {
-
-              errorMessage =
-                "Too many requests were submitted in a short period. Please wait a few minutes and try again.";
-            }
-
-
-            try {
-
-              const errorData =
-                await formspreeResponse.json();
-
-
-              if (
-                errorData &&
-                Array.isArray(
-                  errorData.errors
-                ) &&
-                errorData.errors.length > 0
-              ) {
-
-                errorMessage =
-                  errorData.errors
-                    .map(
-                      function (error) {
-
-                        return error.message;
-                      }
-                    )
-                    .join(" ");
-              }
-
-            } catch (jsonError) {
-
-              console.error(
-                "Could not read Formspree error response:",
-                jsonError
-              );
-            }
-
+          if (
+            !formspreeResponse.ok
+          ) {
 
             throw new Error(
-              errorMessage
+              "Formspree could not accept the request."
             );
+
           }
 
 
           /*
-            ------------------------------------------
-            STEP 2
-            SEND SAME REQUEST TO GOOGLE SHEETS
-            ------------------------------------------
+          ===============================================
+          SEND COPY TO GOOGLE SHEETS
+          ===============================================
           */
 
           try {
@@ -568,33 +754,27 @@ document.addEventListener("DOMContentLoaded", function () {
               formData
             );
 
+
           } catch (sheetError) {
 
-            /*
-              Do NOT tell the customer their
-              appointment failed.
-
-              Formspree already received it,
-              so the business still has the request.
-
-              Log spreadsheet failure separately.
-            */
-
             console.error(
-              "Google Sheets logging error:",
+              "Google Sheets logging failed:",
               sheetError
             );
+
           }
 
 
           /*
-            ------------------------------------------
-            STEP 3
-            SUCCESS
-            ------------------------------------------
+          ===============================================
+          NEXT SUBMISSION BECOMES AN UPDATE
+          ===============================================
           */
 
-          contactForm.reset();
+          sessionStorage.setItem(
+            SUBMISSION_TYPE_KEY,
+            "Updated Request"
+          );
 
 
           setFormMessage(
@@ -603,11 +783,6 @@ document.addEventListener("DOMContentLoaded", function () {
           );
 
 
-          /*
-            Small delay gives the browser time
-            to dispatch the spreadsheet request.
-          */
-
           window.setTimeout(
             function () {
 
@@ -615,7 +790,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 "thank-you.html";
 
             },
-            400
+            500
           );
 
 
@@ -629,7 +804,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           setFormMessage(
             error.message ||
-            "Your request could not be submitted. Please try again.",
+              "Your request could not be submitted.",
             true
           );
 
@@ -639,12 +814,16 @@ document.addEventListener("DOMContentLoaded", function () {
             submitButton.disabled =
               false;
 
+
             submitButton.textContent =
               "Submit Appointment Request";
+
           }
+
         }
+
       }
     );
-  }
 
-});
+  }
+);
