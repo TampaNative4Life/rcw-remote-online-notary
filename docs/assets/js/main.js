@@ -4,25 +4,30 @@ RCW SR. NOTARY SERVICES
 FILE: assets/js/main.js
 
 CHANGE NOTES
-Version: 1.1.1
+Version: 1.6
 Date: August 19, 2026
 
 Changes:
-- Fixed successful form submission hanging before thank-you page.
-- Removed dependency on Google Sheets response before redirect.
-- Google Sheets logging now runs independently after Formspree success.
-- Added navigator.sendBeacon support for spreadsheet logging.
-- Added fetch keepalive fallback for browsers without sendBeacon.
-- Preserved appointment form session storage.
-- Preserved Review or Change My Request workflow.
-- Preserved unique submission ID tracking.
-- Preserved New Request versus Updated Request tracking.
-- Preserved Formspree email submission.
-- Preserved mobile address requirement.
-- Preserved responsive navigation and current-year functions.
+- Added logical appointment date validation.
+- Prevents appointment dates before today.
+- Requires alternate date and alternate time together.
+- Prevents alternate appointment from matching preferred appointment.
+- Requires alternate appointment to occur after preferred appointment.
+- Added Florida mobile-service validation.
+- Mobile service outside Florida is redirected toward RON service.
+- Florida mobile requests remain eligible for special consideration.
+- Added 150-mile standard travel-radius messaging.
+- Preserved customer form data when validation fails.
+- Normalizes state abbreviations to uppercase.
+- Normalizes phone entry before submission.
+- Preserved sessionStorage review and resubmission workflow.
+- Preserved Formspree submission.
+- Preserved Google Sheets background logging.
+- Preserved thank-you redirect.
+- Preserved responsive navigation.
 
 GITHUB COMMIT:
-Fix appointment redirect and background spreadsheet logging
+Add appointment validation and Florida travel service rules
 =========================================================
 */
 
@@ -54,6 +59,10 @@ document.addEventListener(
 
     const SUBMISSION_TYPE_KEY =
       "rcwSubmissionType";
+
+
+    const STANDARD_TRAVEL_RADIUS =
+      150;
 
 
     /*
@@ -199,24 +208,51 @@ document.addEventListener(
 
     /*
     =====================================================
-    DATE LIMITS
+    TODAY
     =====================================================
     */
 
-    const now =
-      new Date();
+    function getTodayString() {
+
+      const now =
+        new Date();
+
+
+      const year =
+        now.getFullYear();
+
+
+      const month =
+        String(
+          now.getMonth() + 1
+        ).padStart(
+          2,
+          "0"
+        );
+
+
+      const day =
+        String(
+          now.getDate()
+        ).padStart(
+          2,
+          "0"
+        );
+
+
+      return (
+        year +
+        "-" +
+        month +
+        "-" +
+        day
+      );
+
+    }
 
 
     const todayString =
-      now.getFullYear() +
-      "-" +
-      String(
-        now.getMonth() + 1
-      ).padStart(2, "0") +
-      "-" +
-      String(
-        now.getDate()
-      ).padStart(2, "0");
+      getTodayString();
 
 
     document
@@ -235,7 +271,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    APPOINTMENT FORM
+    FORM
     =====================================================
     */
 
@@ -259,6 +295,54 @@ document.addEventListener(
     const streetAddress =
       document.getElementById(
         "street-address"
+      );
+
+
+    const city =
+      document.getElementById(
+        "city"
+      );
+
+
+    const state =
+      document.getElementById(
+        "state"
+      );
+
+
+    const zipCode =
+      document.getElementById(
+        "zip-code"
+      );
+
+
+    const phone =
+      document.getElementById(
+        "phone"
+      );
+
+
+    const preferredDate =
+      document.getElementById(
+        "preferred-date"
+      );
+
+
+    const preferredTime =
+      document.getElementById(
+        "preferred-time"
+      );
+
+
+    const alternateDate =
+      document.getElementById(
+        "alternate-date"
+      );
+
+
+    const alternateTime =
+      document.getElementById(
+        "alternate-time"
       );
 
 
@@ -288,7 +372,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    CREATE SUBMISSION ID
+    SUBMISSION ID
     =====================================================
     */
 
@@ -363,6 +447,38 @@ document.addEventListener(
 
     /*
     =====================================================
+    FORM STATUS
+    =====================================================
+    */
+
+    function setFormMessage(
+      message,
+      isError
+    ) {
+
+      if (!formStatus) {
+        return;
+      }
+
+
+      formStatus.textContent =
+        message;
+
+
+      formStatus.style.fontWeight =
+        "700";
+
+
+      formStatus.style.color =
+        isError
+          ? "#a12b2b"
+          : "#1f7a4d";
+
+    }
+
+
+    /*
+    =====================================================
     MOBILE ADDRESS REQUIREMENT
     =====================================================
     */
@@ -377,9 +493,21 @@ document.addEventListener(
       }
 
 
-      streetAddress.required =
+      const isMobile =
         serviceType.value ===
         "Mobile Notary";
+
+
+      streetAddress.required =
+        isMobile;
+
+
+      if (isMobile) {
+
+        streetAddress.placeholder =
+          "Required for mobile appointments";
+
+      }
 
     }
 
@@ -388,7 +516,33 @@ document.addEventListener(
 
       serviceType.addEventListener(
         "change",
-        updateAddressRequirement
+        function () {
+
+          updateAddressRequirement();
+
+
+          if (
+            serviceType.value ===
+            "Mobile Notary"
+          ) {
+
+            setFormMessage(
+              "Standard mobile service covers locations within " +
+              STANDARD_TRAVEL_RADIUS +
+              " driving miles of ZIP code 33594. Florida locations beyond that range may still receive special consideration.",
+              false
+            );
+
+          } else {
+
+            setFormMessage(
+              "",
+              false
+            );
+
+          }
+
+        }
       );
 
     }
@@ -396,7 +550,377 @@ document.addEventListener(
 
     /*
     =====================================================
-    SAVE FORM DATA
+    PHONE NORMALIZATION
+    =====================================================
+    */
+
+    function formatPhoneNumber(
+      value
+    ) {
+
+      if (!value) {
+        return "";
+      }
+
+
+      let digits =
+        String(value)
+          .replace(
+            /\D/g,
+            ""
+          );
+
+
+      if (
+        digits.length === 11 &&
+        digits.charAt(0) === "1"
+      ) {
+
+        digits =
+          digits.substring(1);
+
+      }
+
+
+      if (
+        digits.length !== 10
+      ) {
+
+        return null;
+
+      }
+
+
+      return (
+        "(" +
+        digits.substring(
+          0,
+          3
+        ) +
+        ") " +
+        digits.substring(
+          3,
+          6
+        ) +
+        "-" +
+        digits.substring(
+          6,
+          10
+        )
+      );
+
+    }
+
+
+    if (phone) {
+
+      phone.addEventListener(
+        "blur",
+        function () {
+
+          const formatted =
+            formatPhoneNumber(
+              phone.value
+            );
+
+
+          if (formatted) {
+
+            phone.value =
+              formatted;
+
+          }
+
+        }
+      );
+
+    }
+
+
+    /*
+    =====================================================
+    STATE NORMALIZATION
+    =====================================================
+    */
+
+    if (state) {
+
+      state.addEventListener(
+        "blur",
+        function () {
+
+          state.value =
+            state.value
+              .trim()
+              .toUpperCase();
+
+        }
+      );
+
+    }
+
+
+    /*
+    =====================================================
+    DATE/TIME COMPARISON
+    =====================================================
+    */
+
+    function buildComparableDateTime(
+      dateValue,
+      timeValue
+    ) {
+
+      if (
+        !dateValue ||
+        !timeValue
+      ) {
+
+        return null;
+
+      }
+
+
+      const dateParts =
+        dateValue.split("-");
+
+
+      const timeParts =
+        timeValue.split(":");
+
+
+      if (
+        dateParts.length !== 3 ||
+        timeParts.length < 2
+      ) {
+
+        return null;
+
+      }
+
+
+      return new Date(
+        Number(dateParts[0]),
+        Number(dateParts[1]) - 1,
+        Number(dateParts[2]),
+        Number(timeParts[0]),
+        Number(timeParts[1]),
+        0,
+        0
+      );
+
+    }
+
+
+    /*
+    =====================================================
+    DATE/TIME VALIDATION
+    =====================================================
+    */
+
+    function validateAppointmentTimes() {
+
+      if (
+        preferredDate.value <
+        todayString
+      ) {
+
+        setFormMessage(
+          "Preferred appointment date cannot be before today.",
+          true
+        );
+
+
+        preferredDate.focus();
+
+        return false;
+
+      }
+
+
+      const hasAlternateDate =
+        Boolean(
+          alternateDate.value
+        );
+
+
+      const hasAlternateTime =
+        Boolean(
+          alternateTime.value
+        );
+
+
+      if (
+        hasAlternateDate !==
+        hasAlternateTime
+      ) {
+
+        setFormMessage(
+          "Enter both an alternate date and alternate time, or leave both blank.",
+          true
+        );
+
+
+        if (!alternateDate.value) {
+
+          alternateDate.focus();
+
+        } else {
+
+          alternateTime.focus();
+
+        }
+
+
+        return false;
+
+      }
+
+
+      if (
+        hasAlternateDate &&
+        alternateDate.value <
+        todayString
+      ) {
+
+        setFormMessage(
+          "Alternate appointment date cannot be before today.",
+          true
+        );
+
+
+        alternateDate.focus();
+
+        return false;
+
+      }
+
+
+      if (
+        hasAlternateDate &&
+        hasAlternateTime
+      ) {
+
+        const preferred =
+          buildComparableDateTime(
+            preferredDate.value,
+            preferredTime.value
+          );
+
+
+        const alternate =
+          buildComparableDateTime(
+            alternateDate.value,
+            alternateTime.value
+          );
+
+
+        if (
+          preferred &&
+          alternate &&
+          alternate.getTime() ===
+          preferred.getTime()
+        ) {
+
+          setFormMessage(
+            "Preferred and alternate appointment choices cannot be identical.",
+            true
+          );
+
+
+          alternateTime.focus();
+
+          return false;
+
+        }
+
+
+        if (
+          preferred &&
+          alternate &&
+          alternate.getTime() <
+          preferred.getTime()
+        ) {
+
+          setFormMessage(
+            "The alternate appointment must occur after the preferred appointment.",
+            true
+          );
+
+
+          alternateDate.focus();
+
+          return false;
+
+        }
+
+      }
+
+
+      return true;
+
+    }
+
+
+    /*
+    =====================================================
+    TRAVEL VALIDATION
+    =====================================================
+    */
+
+    function validateTravelRequest() {
+
+      if (
+        !serviceType ||
+        serviceType.value !==
+        "Mobile Notary"
+      ) {
+
+        return true;
+
+      }
+
+
+      const stateValue =
+        state.value
+          .trim()
+          .toUpperCase();
+
+
+      if (
+        stateValue !== "FL"
+      ) {
+
+        setFormMessage(
+          "This location is outside Florida and outside RCW Sr. Notary Services' travel area. Please select Remote Online Notary service, or contact RCW Sr. Notary Services if you have questions about your options.",
+          true
+        );
+
+
+        serviceType.focus();
+
+        return false;
+
+      }
+
+
+      /*
+      Florida requests are allowed.
+
+      Apps Script calculates actual driving mileage.
+
+      Locations over 150 miles are flagged for
+      special consideration instead of rejected.
+      */
+
+      return true;
+
+    }
+
+
+    /*
+    =====================================================
+    SAVE FORM
     =====================================================
     */
 
@@ -406,40 +930,38 @@ document.addEventListener(
         {};
 
 
-      const fields =
-        contactForm.querySelectorAll(
+      contactForm
+        .querySelectorAll(
           "input, select, textarea"
+        )
+        .forEach(
+          function (field) {
+
+            if (
+              !field.name ||
+              field.type === "hidden"
+            ) {
+              return;
+            }
+
+
+            if (
+              field.type ===
+              "checkbox"
+            ) {
+
+              saved[field.name] =
+                field.checked;
+
+            } else {
+
+              saved[field.name] =
+                field.value;
+
+            }
+
+          }
         );
-
-
-      fields.forEach(
-        function (field) {
-
-          if (
-            !field.name ||
-            field.type === "hidden"
-          ) {
-            return;
-          }
-
-
-          if (
-            field.type ===
-            "checkbox"
-          ) {
-
-            saved[field.name] =
-              field.checked;
-
-          } else {
-
-            saved[field.name] =
-              field.value;
-
-          }
-
-        }
-      );
 
 
       sessionStorage.setItem(
@@ -452,7 +974,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    RESTORE FORM DATA
+    RESTORE FORM
     =====================================================
     */
 
@@ -540,43 +1062,11 @@ document.addEventListener(
 
     /*
     =====================================================
-    STATUS MESSAGE
+    GOOGLE SHEETS
     =====================================================
     */
 
-    function setFormMessage(
-      message,
-      isError
-    ) {
-
-      if (!formStatus) {
-        return;
-      }
-
-
-      formStatus.textContent =
-        message;
-
-
-      formStatus.style.fontWeight =
-        "700";
-
-
-      formStatus.style.color =
-        isError
-          ? "#a12b2b"
-          : "#1f7a4d";
-
-    }
-
-
-    /*
-    =====================================================
-    PREPARE GOOGLE SHEETS PAYLOAD
-    =====================================================
-    */
-
-    function buildSheetPayload(
+    function sendToGoogleSheets(
       formData
     ) {
 
@@ -596,81 +1086,6 @@ document.addEventListener(
 
       }
 
-
-      return sheetData;
-
-    }
-
-
-    /*
-    =====================================================
-    SEND GOOGLE SHEETS COPY IN BACKGROUND
-
-    IMPORTANT:
-    Google Sheets logging is secondary.
-
-    Formspree is the primary customer intake system.
-    Spreadsheet problems must never trap the customer
-    on the appointment page.
-    =====================================================
-    */
-
-    function sendToGoogleSheets(
-      formData
-    ) {
-
-      const sheetData =
-        buildSheetPayload(
-          formData
-        );
-
-
-      /*
-      -----------------------------------------------
-      PREFERRED METHOD
-      SEND BEACON
-      -----------------------------------------------
-      */
-
-      if (
-        navigator.sendBeacon
-      ) {
-
-        try {
-
-          const sent =
-            navigator.sendBeacon(
-              GOOGLE_SHEETS_URL,
-              sheetData
-            );
-
-
-          console.log(
-            "Google Sheets beacon dispatched:",
-            sent
-          );
-
-
-          return;
-
-        } catch (beaconError) {
-
-          console.error(
-            "Google Sheets beacon failed:",
-            beaconError
-          );
-
-        }
-
-      }
-
-
-      /*
-      -----------------------------------------------
-      FALLBACK METHOD
-      FETCH WITH KEEPALIVE
-      -----------------------------------------------
-      */
 
       fetch(
         GOOGLE_SHEETS_URL,
@@ -695,11 +1110,11 @@ document.addEventListener(
         }
       )
         .catch(
-          function (sheetError) {
+          function (error) {
 
             console.error(
-              "Google Sheets background logging failed:",
-              sheetError
+              "Google Sheets logging failed:",
+              error
             );
 
           }
@@ -710,7 +1125,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    FORM SUBMISSION
+    SUBMIT
     =====================================================
     */
 
@@ -723,13 +1138,52 @@ document.addEventListener(
 
         updateAddressRequirement();
 
-        saveForm();
+
+        if (state) {
+
+          state.value =
+            state.value
+              .trim()
+              .toUpperCase();
+
+        }
 
 
         /*
-        -----------------------------------------------
-        VALIDATION
-        -----------------------------------------------
+        -------------------------------------------------
+        PHONE
+        -------------------------------------------------
+        */
+
+        const formattedPhone =
+          formatPhoneNumber(
+            phone.value
+          );
+
+
+        if (!formattedPhone) {
+
+          setFormMessage(
+            "Enter a valid 10-digit U.S. phone number.",
+            true
+          );
+
+
+          phone.focus();
+
+          return;
+
+        }
+
+
+        phone.value =
+          formattedPhone;
+
+
+        /*
+        -------------------------------------------------
+        BROWSER VALIDATION
+        -------------------------------------------------
         */
 
         if (
@@ -741,6 +1195,43 @@ document.addEventListener(
           return;
 
         }
+
+
+        /*
+        -------------------------------------------------
+        APPOINTMENT VALIDATION
+        -------------------------------------------------
+        */
+
+        if (
+          !validateAppointmentTimes()
+        ) {
+
+          saveForm();
+
+          return;
+
+        }
+
+
+        /*
+        -------------------------------------------------
+        TRAVEL VALIDATION
+        -------------------------------------------------
+        */
+
+        if (
+          !validateTravelRequest()
+        ) {
+
+          saveForm();
+
+          return;
+
+        }
+
+
+        saveForm();
 
 
         if (submissionIdField) {
@@ -758,12 +1249,6 @@ document.addEventListener(
 
         }
 
-
-        /*
-        -----------------------------------------------
-        BUTTON STATUS
-        -----------------------------------------------
-        */
 
         if (submitButton) {
 
@@ -792,13 +1277,12 @@ document.addEventListener(
 
 
           /*
-          =============================================
-          PRIMARY SUBMISSION
+          -------------------------------------------------
           FORMSPREE
-          =============================================
+          -------------------------------------------------
           */
 
-          const formspreeResponse =
+          const response =
             await fetch(
               contactForm.action,
               {
@@ -819,9 +1303,7 @@ document.addEventListener(
             );
 
 
-          if (
-            !formspreeResponse.ok
-          ) {
+          if (!response.ok) {
 
             throw new Error(
               "Your appointment request could not be submitted."
@@ -831,14 +1313,9 @@ document.addEventListener(
 
 
           /*
-          =============================================
-          FORMSPREE SUCCEEDED
-          =============================================
-          */
-
-
-          /*
-          Send spreadsheet copy without waiting.
+          -------------------------------------------------
+          GOOGLE SHEETS
+          -------------------------------------------------
           */
 
           sendToGoogleSheets(
@@ -847,7 +1324,9 @@ document.addEventListener(
 
 
           /*
-          Mark any later resubmission as an update.
+          -------------------------------------------------
+          MARK RESUBMISSION AS UPDATE
+          -------------------------------------------------
           */
 
           sessionStorage.setItem(
@@ -863,9 +1342,9 @@ document.addEventListener(
 
 
           /*
-          =============================================
-          GO DIRECTLY TO THANK-YOU PAGE
-          =============================================
+          -------------------------------------------------
+          THANK YOU
+          -------------------------------------------------
           */
 
           window.location.assign(
@@ -876,7 +1355,7 @@ document.addEventListener(
         } catch (error) {
 
           console.error(
-            "Appointment request error:",
+            "Appointment submission error:",
             error
           );
 
