@@ -44,8 +44,8 @@ document.addEventListener(
     =====================================================
     */
 
-    const GOOGLE_SHEETS_URL =
-      "https://script.google.com/macros/s/AKfycbyaOMyJdieQHb2JKX8jZduNBDh0HkQVpEaIirkfAXqVOkVL1Gf-Z0aCm8JpM4PUw-Ur/exec";
+const GOOGLE_SHEETS_URL =
+  "https://script.google.com/macros/s/AKfycbxhlpXIjnApIN3yPyl68TRk5eFCbDK2OtBVRaPUbcE-9D_F7CzFEgb6iNlE53BaukAz/exec";
 
 
     const STORAGE_KEY =
