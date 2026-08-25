@@ -4,30 +4,28 @@ RCW SR. NOTARY SERVICES
 FILE: assets/js/main.js
 
 CHANGE NOTES
-Version: 1.6
-Date: August 19, 2026
+Version: 1.6.1
+Date: August 25, 2026
 
 Changes:
-- Added logical appointment date validation.
-- Prevents appointment dates before today.
-- Requires alternate date and alternate time together.
-- Prevents alternate appointment from matching preferred appointment.
-- Requires alternate appointment to occur after preferred appointment.
-- Added Florida mobile-service validation.
-- Mobile service outside Florida is redirected toward RON service.
-- Florida mobile requests remain eligible for special consideration.
-- Added 150-mile standard travel-radius messaging.
-- Preserved customer form data when validation fails.
-- Normalizes state abbreviations to uppercase.
-- Normalizes phone entry before submission.
-- Preserved sessionStorage review and resubmission workflow.
-- Preserved Formspree submission.
-- Preserved Google Sheets background logging.
-- Preserved thank-you redirect.
+- Fixed Google Sheets submissions not reaching Apps Script.
+- Replaced background-only fetch with navigator.sendBeacon
+  as the primary Google Sheets transport.
+- Added fetch keepalive fallback if sendBeacon is unavailable.
+- Added short controlled redirect delay after spreadsheet dispatch.
+- Preserved Formspree as the primary appointment intake.
+- Preserved appointment form session storage.
+- Preserved New Request and Updated Request tracking.
+- Preserved 150-mile Florida mobile-service rules.
+- Preserved out-of-state mobile service guidance.
+- Preserved phone formatting.
+- Preserved date and time validation.
+- Preserved alternate appointment validation.
+- Preserved thank-you page workflow.
 - Preserved responsive navigation.
 
 GITHUB COMMIT:
-Add appointment validation and Florida travel service rules
+Fix Google Sheets request dispatch before appointment redirect
 =========================================================
 */
 
@@ -298,21 +296,9 @@ document.addEventListener(
       );
 
 
-    const city =
-      document.getElementById(
-        "city"
-      );
-
-
     const state =
       document.getElementById(
         "state"
-      );
-
-
-    const zipCode =
-      document.getElementById(
-        "zip-code"
       );
 
 
@@ -447,7 +433,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    FORM STATUS
+    STATUS MESSAGE
     =====================================================
     */
 
@@ -550,7 +536,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    PHONE NORMALIZATION
+    PHONE FORMAT
     =====================================================
     */
 
@@ -629,6 +615,8 @@ document.addEventListener(
             phone.value =
               formatted;
 
+            saveForm();
+
           }
 
         }
@@ -639,7 +627,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    STATE NORMALIZATION
+    STATE FORMAT
     =====================================================
     */
 
@@ -654,6 +642,9 @@ document.addEventListener(
               .trim()
               .toUpperCase();
 
+
+          saveForm();
+
         }
       );
 
@@ -662,7 +653,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    DATE/TIME COMPARISON
+    DATE TIME COMPARISON
     =====================================================
     */
 
@@ -714,11 +705,27 @@ document.addEventListener(
 
     /*
     =====================================================
-    DATE/TIME VALIDATION
+    APPOINTMENT VALIDATION
     =====================================================
     */
 
     function validateAppointmentTimes() {
+
+      if (
+        !preferredDate.value ||
+        !preferredTime.value
+      ) {
+
+        setFormMessage(
+          "Preferred appointment date and time are required.",
+          true
+        );
+
+
+        return false;
+
+      }
+
 
       if (
         preferredDate.value <
@@ -761,7 +768,9 @@ document.addEventListener(
         );
 
 
-        if (!alternateDate.value) {
+        if (
+          !alternateDate.value
+        ) {
 
           alternateDate.focus();
 
@@ -892,7 +901,7 @@ document.addEventListener(
       ) {
 
         setFormMessage(
-          "This location is outside Florida and outside RCW Sr. Notary Services' travel area. Please select Remote Online Notary service, or contact RCW Sr. Notary Services if you have questions about your options.",
+          "This location is outside Florida and outside RCW Sr. Notary Services' standard travel area. Please select Remote Online Notary service, or contact RCW Sr. Notary Services to discuss your options.",
           true
         );
 
@@ -903,15 +912,6 @@ document.addEventListener(
 
       }
 
-
-      /*
-      Florida requests are allowed.
-
-      Apps Script calculates actual driving mileage.
-
-      Locations over 150 miles are flagged for
-      special consideration instead of rejected.
-      */
 
       return true;
 
@@ -941,7 +941,9 @@ document.addEventListener(
               !field.name ||
               field.type === "hidden"
             ) {
+
               return;
+
             }
 
 
@@ -1062,15 +1064,15 @@ document.addEventListener(
 
     /*
     =====================================================
-    GOOGLE SHEETS
+    GOOGLE SHEETS PAYLOAD
     =====================================================
     */
 
-    function sendToGoogleSheets(
+    function buildGooglePayload(
       formData
     ) {
 
-      const sheetData =
+      const params =
         new URLSearchParams();
 
 
@@ -1079,7 +1081,7 @@ document.addEventListener(
         of formData.entries()
       ) {
 
-        sheetData.append(
+        params.append(
           key,
           value
         );
@@ -1087,38 +1089,155 @@ document.addEventListener(
       }
 
 
-      fetch(
-        GOOGLE_SHEETS_URL,
-        {
+      return params.toString();
 
-          method: "POST",
+    }
 
-          mode: "no-cors",
 
-          keepalive: true,
+    /*
+    =====================================================
+    SEND TO GOOGLE SHEETS
 
-          headers: {
+    PRIMARY:
+    navigator.sendBeacon()
 
-            "Content-Type":
-              "application/x-www-form-urlencoded;charset=UTF-8"
+    FALLBACK:
+    fetch() with keepalive
 
-          },
+    IMPORTANT:
+    We do not wait for Google's response.
+    Formspree remains the primary intake system.
+    =====================================================
+    */
 
-          body:
-            sheetData.toString()
+    function sendToGoogleSheets(
+      formData
+    ) {
 
-        }
-      )
-        .catch(
-          function (error) {
+      const payload =
+        buildGooglePayload(
+          formData
+        );
 
-            console.error(
-              "Google Sheets logging failed:",
-              error
+
+      /*
+      ---------------------------------------------------
+      SEND BEACON
+      ---------------------------------------------------
+      */
+
+      if (
+        typeof navigator.sendBeacon ===
+        "function"
+      ) {
+
+        try {
+
+          const blob =
+            new Blob(
+              [
+                payload
+              ],
+              {
+                type:
+                  "application/x-www-form-urlencoded;charset=UTF-8"
+              }
             );
 
+
+          const beaconAccepted =
+            navigator.sendBeacon(
+              GOOGLE_SHEETS_URL,
+              blob
+            );
+
+
+          console.log(
+            "Google Sheets beacon accepted by browser:",
+            beaconAccepted
+          );
+
+
+          if (
+            beaconAccepted
+          ) {
+
+            return true;
+
           }
+
+
+        } catch (error) {
+
+          console.error(
+            "Google Sheets beacon error:",
+            error
+          );
+
+        }
+
+      }
+
+
+      /*
+      ---------------------------------------------------
+      FETCH FALLBACK
+      ---------------------------------------------------
+      */
+
+      try {
+
+        fetch(
+          GOOGLE_SHEETS_URL,
+          {
+
+            method:
+              "POST",
+
+            mode:
+              "no-cors",
+
+            keepalive:
+              true,
+
+            headers: {
+
+              "Content-Type":
+                "application/x-www-form-urlencoded;charset=UTF-8"
+
+            },
+
+            body:
+              payload
+
+          }
+        )
+          .catch(
+            function (error) {
+
+              console.error(
+                "Google Sheets fetch fallback failed:",
+                error
+              );
+
+            }
+          );
+
+
+        return true;
+
+
+      } catch (error) {
+
+        console.error(
+          "Google Sheets dispatch failed:",
+          error
         );
+
+
+        return false;
+
+      }
 
     }
 
@@ -1138,6 +1257,12 @@ document.addEventListener(
 
         updateAddressRequirement();
 
+
+        /*
+        -------------------------------------------------
+        NORMALIZE STATE
+        -------------------------------------------------
+        */
 
         if (state) {
 
@@ -1231,10 +1356,18 @@ document.addEventListener(
         }
 
 
+        /*
+        -------------------------------------------------
+        SAVE CURRENT VALUES
+        -------------------------------------------------
+        */
+
         saveForm();
 
 
-        if (submissionIdField) {
+        if (
+          submissionIdField
+        ) {
 
           submissionIdField.value =
             submissionId;
@@ -1242,7 +1375,9 @@ document.addEventListener(
         }
 
 
-        if (submissionTypeField) {
+        if (
+          submissionTypeField
+        ) {
 
           submissionTypeField.value =
             submissionType;
@@ -1250,7 +1385,15 @@ document.addEventListener(
         }
 
 
-        if (submitButton) {
+        /*
+        -------------------------------------------------
+        BUTTON
+        -------------------------------------------------
+        */
+
+        if (
+          submitButton
+        ) {
 
           submitButton.disabled =
             true;
@@ -1277,9 +1420,9 @@ document.addEventListener(
 
 
           /*
-          -------------------------------------------------
+          =================================================
           FORMSPREE
-          -------------------------------------------------
+          =================================================
           */
 
           const response =
@@ -1287,7 +1430,8 @@ document.addEventListener(
               contactForm.action,
               {
 
-                method: "POST",
+                method:
+                  "POST",
 
                 body:
                   formData,
@@ -1303,7 +1447,9 @@ document.addEventListener(
             );
 
 
-          if (!response.ok) {
+          if (
+            !response.ok
+          ) {
 
             throw new Error(
               "Your appointment request could not be submitted."
@@ -1313,9 +1459,11 @@ document.addEventListener(
 
 
           /*
-          -------------------------------------------------
+          =================================================
           GOOGLE SHEETS
-          -------------------------------------------------
+
+          Dispatch before redirect.
+          =================================================
           */
 
           sendToGoogleSheets(
@@ -1324,9 +1472,9 @@ document.addEventListener(
 
 
           /*
-          -------------------------------------------------
-          MARK RESUBMISSION AS UPDATE
-          -------------------------------------------------
+          =================================================
+          NEXT SUBMISSION IS AN UPDATE
+          =================================================
           */
 
           sessionStorage.setItem(
@@ -1342,13 +1490,22 @@ document.addEventListener(
 
 
           /*
-          -------------------------------------------------
-          THANK YOU
-          -------------------------------------------------
+          =================================================
+          SHORT DELAY
+
+          Gives the browser a moment to dispatch the
+          beacon/fallback request before navigation.
+          =================================================
           */
 
-          window.location.assign(
-            "thank-you.html"
+          window.setTimeout(
+            function () {
+
+              window.location.href =
+                "thank-you.html";
+
+            },
+            900
           );
 
 
@@ -1367,7 +1524,9 @@ document.addEventListener(
           );
 
 
-          if (submitButton) {
+          if (
+            submitButton
+          ) {
 
             submitButton.disabled =
               false;
