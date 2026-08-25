@@ -4,29 +4,27 @@ RCW SR. NOTARY SERVICES
 FILE: assets/js/main.js
 
 CHANGE NOTES
-Version: 1.6.2
+Version: 1.7
 Date: August 25, 2026
 
 Changes:
-- Removed navigator.sendBeacon for Google Sheets submissions.
-- Google Apps Script POST is now sent with fetch().
-- Website waits for the Google Sheets POST attempt before redirecting.
-- Added Google Sheets request timeout protection.
-- Added detailed Console logging for Formspree and Google Sheets.
-- Spreadsheet failure does not cancel a successful Formspree request.
-- Customer still reaches thank-you page if spreadsheet logging fails.
-- Preserved appointment form session storage.
-- Preserved Review or Change My Request workflow.
-- Preserved New Request and Updated Request tracking.
-- Preserved phone normalization as (XXX) XXX-XXXX.
-- Preserved preferred and alternate appointment validation.
-- Preserved 150-mile Florida mobile travel rules.
-- Preserved out-of-state mobile service guidance.
-- Preserved Formspree as primary appointment intake.
+- Added dependent Notarial Act and Document Type dropdowns.
+- Added "Not Sure, Help Me Choose" workflow.
+- Document Type becomes optional when customer needs help.
+- Added required notarial help description for unsure customers.
+- Preserved working Formspree submission.
+- Preserved working Google Apps Script submission.
+- Preserved Google request timeout protection.
+- Preserved appointment persistence and resubmission tracking.
+- Preserved phone normalization.
+- Preserved appointment date and time validation.
+- Preserved Florida mobile service validation.
+- Preserved 150-mile travel-radius messaging.
+- Preserved thank-you redirect.
 - Preserved responsive navigation.
 
 GITHUB COMMIT:
-Replace beacon with reliable Google Sheets appointment submission
+Add dependent notarial act and document type workflow
 =========================================================
 */
 
@@ -66,6 +64,85 @@ document.addEventListener(
 
     const GOOGLE_REQUEST_TIMEOUT_MS =
       5000;
+
+
+    /*
+    =====================================================
+    NOTARIAL ACT / DOCUMENT MAP
+    =====================================================
+    */
+
+    const DOCUMENT_OPTIONS = {
+
+      "Acknowledgment": [
+
+        "Power of Attorney",
+        "Real Estate Document",
+        "Vehicle Title or Bill of Sale",
+        "Business Document",
+        "Medical or Healthcare Document",
+        "Agreement or Contract",
+        "Other",
+        "Not Sure"
+
+      ],
+
+
+      "Jurat": [
+
+        "Affidavit",
+        "Sworn Statement",
+        "Court or Legal Document",
+        "Business Document",
+        "Declaration",
+        "Other",
+        "Not Sure"
+
+      ],
+
+
+      "Oath or Affirmation": [
+
+        "Affidavit",
+        "Sworn Statement",
+        "Declaration",
+        "Other",
+        "Not Sure"
+
+      ],
+
+
+      "Copy Certification": [
+
+        "Eligible Copy Certification",
+        "Business Record",
+        "Personal Record",
+        "Other",
+        "Not Sure"
+
+      ],
+
+
+      "Not Sure, Help Me Choose": [
+
+        "Affidavit",
+        "Power of Attorney",
+        "Real Estate Document",
+        "Vehicle Title or Bill of Sale",
+        "Court or Legal Document",
+        "Medical or Healthcare Document",
+        "School or Minor Consent Form",
+        "Business Document",
+        "Agreement or Contract",
+        "Sworn Statement",
+        "Declaration",
+        "Eligible Copy Certification",
+        "Other",
+        "Not Sure"
+
+      ]
+
+    };
 
 
     /*
@@ -221,34 +298,22 @@ document.addEventListener(
         new Date();
 
 
-      const year =
-        now.getFullYear();
-
-
-      const month =
+      return (
+        now.getFullYear() +
+        "-" +
         String(
           now.getMonth() + 1
         ).padStart(
           2,
           "0"
-        );
-
-
-      const day =
+        ) +
+        "-" +
         String(
           now.getDate()
         ).padStart(
           2,
           "0"
-        );
-
-
-      return (
-        year +
-        "-" +
-        month +
-        "-" +
-        day
+        )
       );
 
     }
@@ -337,6 +402,30 @@ document.addEventListener(
       );
 
 
+    const notarialActType =
+      document.getElementById(
+        "notarial-act-type"
+      );
+
+
+    const documentType =
+      document.getElementById(
+        "document-type"
+      );
+
+
+    const notarialHelpGroup =
+      document.getElementById(
+        "notarial-help-group"
+      );
+
+
+    const notarialHelpDescription =
+      document.getElementById(
+        "notarial-help-description"
+      );
+
+
     const formStatus =
       document.getElementById(
         "form-status"
@@ -420,25 +509,17 @@ document.addEventListener(
       "New Request";
 
 
-    if (submissionIdField) {
-
-      submissionIdField.value =
-        submissionId;
-
-    }
+    submissionIdField.value =
+      submissionId;
 
 
-    if (submissionTypeField) {
-
-      submissionTypeField.value =
-        submissionType;
-
-    }
+    submissionTypeField.value =
+      submissionType;
 
 
     /*
     =====================================================
-    STATUS MESSAGE
+    STATUS
     =====================================================
     */
 
@@ -470,19 +551,162 @@ document.addEventListener(
 
     /*
     =====================================================
-    MOBILE ADDRESS REQUIREMENT
+    NOTARIAL ACT WORKFLOW
+    =====================================================
+    */
+
+    function populateDocumentTypes(
+      selectedValue
+    ) {
+
+      const previousValue =
+        documentType.value;
+
+
+      documentType.innerHTML =
+        "";
+
+
+      const starter =
+        document.createElement(
+          "option"
+        );
+
+
+      starter.value =
+        "";
+
+
+      starter.textContent =
+        selectedValue
+          ? "Select document type"
+          : "Select a notarial act first";
+
+
+      documentType.appendChild(
+        starter
+      );
+
+
+      if (
+        !selectedValue ||
+        !DOCUMENT_OPTIONS[
+          selectedValue
+        ]
+      ) {
+
+        documentType.disabled =
+          true;
+
+        return;
+
+      }
+
+
+      DOCUMENT_OPTIONS[
+        selectedValue
+      ]
+        .forEach(
+          function (item) {
+
+            const option =
+              document.createElement(
+                "option"
+              );
+
+
+            option.value =
+              item;
+
+
+            option.textContent =
+              item;
+
+
+            documentType.appendChild(
+              option
+            );
+
+          }
+        );
+
+
+      documentType.disabled =
+        false;
+
+
+      if (
+        DOCUMENT_OPTIONS[
+          selectedValue
+        ].includes(
+          previousValue
+        )
+      ) {
+
+        documentType.value =
+          previousValue;
+
+      }
+
+    }
+
+
+    function updateNotarialHelpWorkflow() {
+
+      const needsHelp =
+        notarialActType.value ===
+        "Not Sure, Help Me Choose";
+
+
+      notarialHelpGroup.hidden =
+        !needsHelp;
+
+
+      notarialHelpDescription.required =
+        needsHelp;
+
+
+      documentType.required =
+        !needsHelp;
+
+
+      if (needsHelp) {
+
+        setFormMessage(
+          "No problem. Tell me what you are trying to get notarized and I will contact you before the appointment.",
+          false
+        );
+
+      }
+
+    }
+
+
+    notarialActType.addEventListener(
+      "change",
+      function () {
+
+        populateDocumentTypes(
+          notarialActType.value
+        );
+
+
+        updateNotarialHelpWorkflow();
+
+
+        saveForm();
+
+      }
+    );
+
+
+    /*
+    =====================================================
+    MOBILE ADDRESS
     =====================================================
     */
 
     function updateAddressRequirement() {
-
-      if (
-        !serviceType ||
-        !streetAddress
-      ) {
-        return;
-      }
-
 
       const isMobile =
         serviceType.value ===
@@ -503,45 +727,34 @@ document.addEventListener(
     }
 
 
-    if (serviceType) {
+    serviceType.addEventListener(
+      "change",
+      function () {
 
-      serviceType.addEventListener(
-        "change",
-        function () {
-
-          updateAddressRequirement();
+        updateAddressRequirement();
 
 
-          if (
-            serviceType.value ===
-            "Mobile Notary"
-          ) {
+        if (
+          serviceType.value ===
+          "Mobile Notary"
+        ) {
 
-            setFormMessage(
-              "Standard mobile service covers locations within " +
-              STANDARD_TRAVEL_RADIUS +
-              " driving miles of ZIP code 33594. Florida locations beyond that range may still receive special consideration.",
-              false
-            );
-
-          } else {
-
-            setFormMessage(
-              "",
-              false
-            );
-
-          }
+          setFormMessage(
+            "Standard mobile service covers locations within " +
+            STANDARD_TRAVEL_RADIUS +
+            " driving miles of ZIP code 33594. Florida locations beyond that range may still receive special consideration.",
+            false
+          );
 
         }
-      );
 
-    }
+      }
+    );
 
 
     /*
     =====================================================
-    PHONE FORMAT
+    PHONE
     =====================================================
     */
 
@@ -549,13 +762,10 @@ document.addEventListener(
       value
     ) {
 
-      if (!value) {
-        return "";
-      }
-
-
       let digits =
-        String(value)
+        String(
+          value || ""
+        )
           .replace(
             /\D/g,
             ""
@@ -603,62 +813,54 @@ document.addEventListener(
     }
 
 
-    if (phone) {
+    phone.addEventListener(
+      "blur",
+      function () {
 
-      phone.addEventListener(
-        "blur",
-        function () {
-
-          const formatted =
-            formatPhoneNumber(
-              phone.value
-            );
+        const formatted =
+          formatPhoneNumber(
+            phone.value
+          );
 
 
-          if (formatted) {
+        if (formatted) {
 
-            phone.value =
-              formatted;
-
-            saveForm();
-
-          }
-
-        }
-      );
-
-    }
-
-
-    /*
-    =====================================================
-    STATE FORMAT
-    =====================================================
-    */
-
-    if (state) {
-
-      state.addEventListener(
-        "blur",
-        function () {
-
-          state.value =
-            state.value
-              .trim()
-              .toUpperCase();
-
+          phone.value =
+            formatted;
 
           saveForm();
 
         }
-      );
 
-    }
+      }
+    );
 
 
     /*
     =====================================================
-    DATE TIME BUILDER
+    STATE
+    =====================================================
+    */
+
+    state.addEventListener(
+      "blur",
+      function () {
+
+        state.value =
+          state.value
+            .trim()
+            .toUpperCase();
+
+
+        saveForm();
+
+      }
+    );
+
+
+    /*
+    =====================================================
+    DATE TIME VALIDATION
     =====================================================
     */
 
@@ -667,32 +869,12 @@ document.addEventListener(
       timeValue
     ) {
 
-      if (
-        !dateValue ||
-        !timeValue
-      ) {
-
-        return null;
-
-      }
-
-
       const dateParts =
         dateValue.split("-");
 
 
       const timeParts =
         timeValue.split(":");
-
-
-      if (
-        dateParts.length !== 3 ||
-        timeParts.length < 2
-      ) {
-
-        return null;
-
-      }
 
 
       return new Date(
@@ -708,29 +890,7 @@ document.addEventListener(
     }
 
 
-    /*
-    =====================================================
-    APPOINTMENT VALIDATION
-    =====================================================
-    */
-
     function validateAppointmentTimes() {
-
-      if (
-        !preferredDate.value ||
-        !preferredTime.value
-      ) {
-
-        setFormMessage(
-          "Preferred appointment date and time are required.",
-          true
-        );
-
-
-        return false;
-
-      }
-
 
       if (
         preferredDate.value <
@@ -773,19 +933,6 @@ document.addEventListener(
         );
 
 
-        if (
-          !alternateDate.value
-        ) {
-
-          alternateDate.focus();
-
-        } else {
-
-          alternateTime.focus();
-
-        }
-
-
         return false;
 
       }
@@ -802,8 +949,6 @@ document.addEventListener(
           true
         );
 
-
-        alternateDate.focus();
 
         return false;
 
@@ -830,8 +975,6 @@ document.addEventListener(
 
 
         if (
-          preferred &&
-          alternate &&
           alternate.getTime() ===
           preferred.getTime()
         ) {
@@ -842,16 +985,12 @@ document.addEventListener(
           );
 
 
-          alternateTime.focus();
-
           return false;
 
         }
 
 
         if (
-          preferred &&
-          alternate &&
           alternate.getTime() <
           preferred.getTime()
         ) {
@@ -861,8 +1000,6 @@ document.addEventListener(
             true
           );
 
-
-          alternateDate.focus();
 
           return false;
 
@@ -885,7 +1022,6 @@ document.addEventListener(
     function validateTravelRequest() {
 
       if (
-        !serviceType ||
         serviceType.value !==
         "Mobile Notary"
       ) {
@@ -895,14 +1031,11 @@ document.addEventListener(
       }
 
 
-      const stateValue =
+      if (
         state.value
           .trim()
-          .toUpperCase();
-
-
-      if (
-        stateValue !== "FL"
+          .toUpperCase() !==
+        "FL"
       ) {
 
         setFormMessage(
@@ -952,20 +1085,11 @@ document.addEventListener(
             }
 
 
-            if (
+            saved[field.name] =
               field.type ===
               "checkbox"
-            ) {
-
-              saved[field.name] =
-                field.checked;
-
-            } else {
-
-              saved[field.name] =
-                field.value;
-
-            }
+                ? field.checked
+                : field.value;
 
           }
         );
@@ -1004,12 +1128,32 @@ document.addEventListener(
           JSON.parse(raw);
 
 
+        if (
+          saved.notarialActType
+        ) {
+
+          notarialActType.value =
+            saved.notarialActType;
+
+
+          populateDocumentTypes(
+            saved.notarialActType
+          );
+
+
+          updateNotarialHelpWorkflow();
+
+        }
+
+
         Object.keys(saved)
           .forEach(
             function (name) {
 
               const field =
-                contactForm.elements[name];
+                contactForm.elements[
+                  name
+                ];
 
 
               if (!field) {
@@ -1069,7 +1213,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    GOOGLE SHEETS PAYLOAD
+    GOOGLE PAYLOAD
     =====================================================
     */
 
@@ -1101,28 +1245,13 @@ document.addEventListener(
 
     /*
     =====================================================
-    GOOGLE SHEETS POST
-
-    We intentionally use no-cors because Google Apps
-    Script does not provide a normal CORS response.
-
-    The Promise resolving means the browser completed
-    the POST dispatch.
-
-    Apps Script itself remains responsible for
-    processing and validating the request.
+    GOOGLE SHEETS
     =====================================================
     */
 
     async function sendToGoogleSheets(
       formData
     ) {
-
-      const payload =
-        buildGooglePayload(
-          formData
-        );
-
 
       const controller =
         new AbortController();
@@ -1170,7 +1299,9 @@ document.addEventListener(
             },
 
             body:
-              payload,
+              buildGooglePayload(
+                formData
+              ),
 
             signal:
               controller.signal
@@ -1179,7 +1310,7 @@ document.addEventListener(
         );
 
 
-        window.clearTimeout(
+        clearTimeout(
           timeoutId
         );
 
@@ -1194,28 +1325,15 @@ document.addEventListener(
 
       } catch (error) {
 
-        window.clearTimeout(
+        clearTimeout(
           timeoutId
         );
 
 
-        if (
-          error.name ===
-          "AbortError"
-        ) {
-
-          console.error(
-            "Google Sheets request timed out."
-          );
-
-        } else {
-
-          console.error(
-            "Google Sheets submission failed:",
-            error
-          );
-
-        }
+        console.error(
+          "Google Sheets submission failed:",
+          error
+        );
 
 
         return false;
@@ -1227,7 +1345,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    FORM SUBMIT
+    SUBMIT
     =====================================================
     */
 
@@ -1238,30 +1356,11 @@ document.addEventListener(
         event.preventDefault();
 
 
-        updateAddressRequirement();
+        state.value =
+          state.value
+            .trim()
+            .toUpperCase();
 
-
-        /*
-        -------------------------------------------------
-        NORMALIZE STATE
-        -------------------------------------------------
-        */
-
-        if (state) {
-
-          state.value =
-            state.value
-              .trim()
-              .toUpperCase();
-
-        }
-
-
-        /*
-        -------------------------------------------------
-        PHONE
-        -------------------------------------------------
-        */
 
         const formattedPhone =
           formatPhoneNumber(
@@ -1288,11 +1387,10 @@ document.addEventListener(
           formattedPhone;
 
 
-        /*
-        -------------------------------------------------
-        HTML VALIDATION
-        -------------------------------------------------
-        */
+        updateAddressRequirement();
+
+        updateNotarialHelpWorkflow();
+
 
         if (
           !contactForm.checkValidity()
@@ -1305,12 +1403,6 @@ document.addEventListener(
         }
 
 
-        /*
-        -------------------------------------------------
-        APPOINTMENT VALIDATION
-        -------------------------------------------------
-        */
-
         if (
           !validateAppointmentTimes()
         ) {
@@ -1321,12 +1413,6 @@ document.addEventListener(
 
         }
 
-
-        /*
-        -------------------------------------------------
-        TRAVEL VALIDATION
-        -------------------------------------------------
-        */
 
         if (
           !validateTravelRequest()
@@ -1339,53 +1425,42 @@ document.addEventListener(
         }
 
 
-        /*
-        -------------------------------------------------
-        SAVE CURRENT FORM
-        -------------------------------------------------
-        */
+        if (
+          notarialActType.value ===
+          "Not Sure, Help Me Choose" &&
+          !notarialHelpDescription.value.trim()
+        ) {
+
+          setFormMessage(
+            "Tell me what you are trying to get notarized so I can help determine the appropriate service.",
+            true
+          );
+
+
+          notarialHelpDescription.focus();
+
+          return;
+
+        }
+
 
         saveForm();
 
 
-        if (
-          submissionIdField
-        ) {
-
-          submissionIdField.value =
-            submissionId;
-
-        }
+        submissionIdField.value =
+          submissionId;
 
 
-        if (
-          submissionTypeField
-        ) {
-
-          submissionTypeField.value =
-            submissionType;
-
-        }
+        submissionTypeField.value =
+          submissionType;
 
 
-        /*
-        -------------------------------------------------
-        BUTTON
-        -------------------------------------------------
-        */
-
-        if (
-          submitButton
-        ) {
-
-          submitButton.disabled =
-            true;
+        submitButton.disabled =
+          true;
 
 
-          submitButton.textContent =
-            "Sending Request...";
-
-        }
+        submitButton.textContent =
+          "Sending Request...";
 
 
         setFormMessage(
@@ -1401,13 +1476,6 @@ document.addEventListener(
               contactForm
             );
 
-
-          /*
-          =================================================
-          STEP 1
-          FORMSPREE
-          =================================================
-          */
 
           console.log(
             "Sending appointment to Formspree..."
@@ -1452,49 +1520,16 @@ document.addEventListener(
           );
 
 
-          /*
-          =================================================
-          STEP 2
-          GOOGLE SHEETS
-          =================================================
-          */
-
-
           setFormMessage(
             "Request received. Saving appointment...",
             false
           );
 
 
-          const sheetSuccess =
-            await sendToGoogleSheets(
-              formData
-            );
+          await sendToGoogleSheets(
+            formData
+          );
 
-
-          if (
-            sheetSuccess
-          ) {
-
-            console.log(
-              "Google Sheets logging completed."
-            );
-
-          } else {
-
-            console.warn(
-              "Appointment reached Formspree, but Google Sheets logging did not complete."
-            );
-
-          }
-
-
-          /*
-          =================================================
-          STEP 3
-          MARK FUTURE RESUBMISSION
-          =================================================
-          */
 
           sessionStorage.setItem(
             SUBMISSION_TYPE_KEY,
@@ -1502,21 +1537,9 @@ document.addEventListener(
           );
 
 
-          /*
-          =================================================
-          STEP 4
-          THANK-YOU
-          =================================================
-          */
-
           setFormMessage(
             "Request received. Opening confirmation...",
             false
-          );
-
-
-          console.log(
-            "Opening thank-you page."
           );
 
 
@@ -1539,18 +1562,12 @@ document.addEventListener(
           );
 
 
-          if (
-            submitButton
-          ) {
-
-            submitButton.disabled =
-              false;
+          submitButton.disabled =
+            false;
 
 
-            submitButton.textContent =
-              "Submit Appointment Request";
-
-          }
+          submitButton.textContent =
+            "Submit Appointment Request";
 
         }
 
