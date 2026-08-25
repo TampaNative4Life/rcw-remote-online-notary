@@ -4,28 +4,29 @@ RCW SR. NOTARY SERVICES
 FILE: assets/js/main.js
 
 CHANGE NOTES
-Version: 1.6.1
+Version: 1.6.2
 Date: August 25, 2026
 
 Changes:
-- Fixed Google Sheets submissions not reaching Apps Script.
-- Replaced background-only fetch with navigator.sendBeacon
-  as the primary Google Sheets transport.
-- Added fetch keepalive fallback if sendBeacon is unavailable.
-- Added short controlled redirect delay after spreadsheet dispatch.
-- Preserved Formspree as the primary appointment intake.
+- Removed navigator.sendBeacon for Google Sheets submissions.
+- Google Apps Script POST is now sent with fetch().
+- Website waits for the Google Sheets POST attempt before redirecting.
+- Added Google Sheets request timeout protection.
+- Added detailed Console logging for Formspree and Google Sheets.
+- Spreadsheet failure does not cancel a successful Formspree request.
+- Customer still reaches thank-you page if spreadsheet logging fails.
 - Preserved appointment form session storage.
+- Preserved Review or Change My Request workflow.
 - Preserved New Request and Updated Request tracking.
-- Preserved 150-mile Florida mobile-service rules.
+- Preserved phone normalization as (XXX) XXX-XXXX.
+- Preserved preferred and alternate appointment validation.
+- Preserved 150-mile Florida mobile travel rules.
 - Preserved out-of-state mobile service guidance.
-- Preserved phone formatting.
-- Preserved date and time validation.
-- Preserved alternate appointment validation.
-- Preserved thank-you page workflow.
+- Preserved Formspree as primary appointment intake.
 - Preserved responsive navigation.
 
 GITHUB COMMIT:
-Fix Google Sheets request dispatch before appointment redirect
+Replace beacon with reliable Google Sheets appointment submission
 =========================================================
 */
 
@@ -61,6 +62,10 @@ document.addEventListener(
 
     const STANDARD_TRAVEL_RADIUS =
       150;
+
+
+    const GOOGLE_REQUEST_TIMEOUT_MS =
+      5000;
 
 
     /*
@@ -269,7 +274,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    FORM
+    CONTACT FORM
     =====================================================
     */
 
@@ -653,7 +658,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    DATE TIME COMPARISON
+    DATE TIME BUILDER
     =====================================================
     */
 
@@ -1096,21 +1101,20 @@ document.addEventListener(
 
     /*
     =====================================================
-    SEND TO GOOGLE SHEETS
+    GOOGLE SHEETS POST
 
-    PRIMARY:
-    navigator.sendBeacon()
+    We intentionally use no-cors because Google Apps
+    Script does not provide a normal CORS response.
 
-    FALLBACK:
-    fetch() with keepalive
+    The Promise resolving means the browser completed
+    the POST dispatch.
 
-    IMPORTANT:
-    We do not wait for Google's response.
-    Formspree remains the primary intake system.
+    Apps Script itself remains responsible for
+    processing and validating the request.
     =====================================================
     */
 
-    function sendToGoogleSheets(
+    async function sendToGoogleSheets(
       formData
     ) {
 
@@ -1120,74 +1124,29 @@ document.addEventListener(
         );
 
 
-      /*
-      ---------------------------------------------------
-      SEND BEACON
-      ---------------------------------------------------
-      */
-
-      if (
-        typeof navigator.sendBeacon ===
-        "function"
-      ) {
-
-        try {
-
-          const blob =
-            new Blob(
-              [
-                payload
-              ],
-              {
-                type:
-                  "application/x-www-form-urlencoded;charset=UTF-8"
-              }
-            );
+      const controller =
+        new AbortController();
 
 
-          const beaconAccepted =
-            navigator.sendBeacon(
-              GOOGLE_SHEETS_URL,
-              blob
-            );
+      const timeoutId =
+        window.setTimeout(
+          function () {
 
+            controller.abort();
 
-          console.log(
-            "Google Sheets beacon accepted by browser:",
-            beaconAccepted
-          );
+          },
+          GOOGLE_REQUEST_TIMEOUT_MS
+        );
 
-
-          if (
-            beaconAccepted
-          ) {
-
-            return true;
-
-          }
-
-
-        } catch (error) {
-
-          console.error(
-            "Google Sheets beacon error:",
-            error
-          );
-
-        }
-
-      }
-
-
-      /*
-      ---------------------------------------------------
-      FETCH FALLBACK
-      ---------------------------------------------------
-      */
 
       try {
 
-        fetch(
+        console.log(
+          "Sending appointment to Google Sheets..."
+        );
+
+
+        await fetch(
           GOOGLE_SHEETS_URL,
           {
 
@@ -1197,8 +1156,11 @@ document.addEventListener(
             mode:
               "no-cors",
 
-            keepalive:
-              true,
+            cache:
+              "no-store",
+
+            redirect:
+              "follow",
 
             headers: {
 
@@ -1208,20 +1170,23 @@ document.addEventListener(
             },
 
             body:
-              payload
+              payload,
+
+            signal:
+              controller.signal
 
           }
-        )
-          .catch(
-            function (error) {
+        );
 
-              console.error(
-                "Google Sheets fetch fallback failed:",
-                error
-              );
 
-            }
-          );
+        window.clearTimeout(
+          timeoutId
+        );
+
+
+        console.log(
+          "Google Sheets request dispatched successfully."
+        );
 
 
         return true;
@@ -1229,10 +1194,28 @@ document.addEventListener(
 
       } catch (error) {
 
-        console.error(
-          "Google Sheets dispatch failed:",
-          error
+        window.clearTimeout(
+          timeoutId
         );
+
+
+        if (
+          error.name ===
+          "AbortError"
+        ) {
+
+          console.error(
+            "Google Sheets request timed out."
+          );
+
+        } else {
+
+          console.error(
+            "Google Sheets submission failed:",
+            error
+          );
+
+        }
 
 
         return false;
@@ -1244,7 +1227,7 @@ document.addEventListener(
 
     /*
     =====================================================
-    SUBMIT
+    FORM SUBMIT
     =====================================================
     */
 
@@ -1307,7 +1290,7 @@ document.addEventListener(
 
         /*
         -------------------------------------------------
-        BROWSER VALIDATION
+        HTML VALIDATION
         -------------------------------------------------
         */
 
@@ -1358,7 +1341,7 @@ document.addEventListener(
 
         /*
         -------------------------------------------------
-        SAVE CURRENT VALUES
+        SAVE CURRENT FORM
         -------------------------------------------------
         */
 
@@ -1421,11 +1404,17 @@ document.addEventListener(
 
           /*
           =================================================
+          STEP 1
           FORMSPREE
           =================================================
           */
 
-          const response =
+          console.log(
+            "Sending appointment to Formspree..."
+          );
+
+
+          const formspreeResponse =
             await fetch(
               contactForm.action,
               {
@@ -1448,7 +1437,7 @@ document.addEventListener(
 
 
           if (
-            !response.ok
+            !formspreeResponse.ok
           ) {
 
             throw new Error(
@@ -1458,22 +1447,52 @@ document.addEventListener(
           }
 
 
-          /*
-          =================================================
-          GOOGLE SHEETS
-
-          Dispatch before redirect.
-          =================================================
-          */
-
-          sendToGoogleSheets(
-            formData
+          console.log(
+            "Formspree submission successful."
           );
 
 
           /*
           =================================================
-          NEXT SUBMISSION IS AN UPDATE
+          STEP 2
+          GOOGLE SHEETS
+          =================================================
+          */
+
+
+          setFormMessage(
+            "Request received. Saving appointment...",
+            false
+          );
+
+
+          const sheetSuccess =
+            await sendToGoogleSheets(
+              formData
+            );
+
+
+          if (
+            sheetSuccess
+          ) {
+
+            console.log(
+              "Google Sheets logging completed."
+            );
+
+          } else {
+
+            console.warn(
+              "Appointment reached Formspree, but Google Sheets logging did not complete."
+            );
+
+          }
+
+
+          /*
+          =================================================
+          STEP 3
+          MARK FUTURE RESUBMISSION
           =================================================
           */
 
@@ -1483,30 +1502,26 @@ document.addEventListener(
           );
 
 
+          /*
+          =================================================
+          STEP 4
+          THANK-YOU
+          =================================================
+          */
+
           setFormMessage(
             "Request received. Opening confirmation...",
             false
           );
 
 
-          /*
-          =================================================
-          SHORT DELAY
-
-          Gives the browser a moment to dispatch the
-          beacon/fallback request before navigation.
-          =================================================
-          */
-
-          window.setTimeout(
-            function () {
-
-              window.location.href =
-                "thank-you.html";
-
-            },
-            900
+          console.log(
+            "Opening thank-you page."
           );
+
+
+          window.location.href =
+            "thank-you.html";
 
 
         } catch (error) {
