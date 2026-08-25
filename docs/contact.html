@@ -4,22 +4,24 @@ RCW SR. NOTARY SERVICES
 FILE: contact.html
 
 CHANGE NOTES
-Version: 1.1
-Date: August 19, 2026
+Version: 1.2
+Date: August 25, 2026
 
 Changes:
-- Added temporary appointment form persistence.
-- Added support for reviewing and changing submitted requests.
-- Added unique submission ID tracking.
-- Added New Request versus Updated Request tracking.
-- Added preferred contact method.
-- Added Remote Online Notary and Mobile Notary choices.
-- Added mobile appointment address information.
-- Preserved Formspree appointment submission.
-- Prepared form data for Google Sheets integration.
+- Added Notarial Act Needed dropdown.
+- Added dependent Document Type dropdown.
+- Added "Not Sure, Help Me Choose" workflow.
+- Added required description field when customer needs help.
+- Added customer guidance explaining that RCW will review
+  the document need before determining the proper service.
+- Preserved Remote Online Notary and Mobile Notary options.
+- Preserved preferred contact method and contact time.
+- Preserved appointment persistence and resubmission workflow.
+- Preserved Formspree integration.
+- Preserved Google Sheets integration.
 
 GITHUB COMMIT:
-Add persistent appointment review and resubmission workflow
+Add guided notarial act and document type selection
 =========================================================
 -->
 
@@ -27,6 +29,7 @@ Add persistent appointment review and resubmission workflow
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -57,7 +60,9 @@ Add persistent appointment review and resubmission workflow
     src="assets/js/main.js"
     defer
   ></script>
+
 </head>
+
 
 <body>
 
@@ -68,6 +73,7 @@ Add persistent appointment review and resubmission workflow
     Skip to main content
   </a>
 
+
   <header class="site-header">
 
     <div class="container header-inner">
@@ -77,12 +83,15 @@ Add persistent appointment review and resubmission workflow
         href="index.html"
         aria-label="RCW Sr. Notary Services home"
       >
+
         <img
           src="assets/images/rcw-sr-logo-full.png"
           alt="RCW Sr. Notary Services logo"
           class="site-logo"
         >
+
       </a>
+
 
       <button
         class="menu-toggle"
@@ -90,6 +99,7 @@ Add persistent appointment review and resubmission workflow
         aria-expanded="false"
         aria-controls="primary-navigation"
       >
+
         <span class="sr-only">
           Open navigation menu
         </span>
@@ -97,7 +107,9 @@ Add persistent appointment review and resubmission workflow
         <span></span>
         <span></span>
         <span></span>
+
       </button>
+
 
       <nav
         id="primary-navigation"
@@ -165,12 +177,12 @@ Add persistent appointment review and resubmission workflow
           <p class="hero-text">
             Request a Remote Online Notary appointment,
             a mobile appointment,
-            or ask a question before scheduling.
+            or ask for help determining what kind of notarization you need.
           </p>
 
           <p class="hero-text">
             Your entries are temporarily saved in this browser tab.
-            You can return, review them, make changes, and resubmit if necessary.
+            You can return, make changes, and resubmit if necessary.
           </p>
 
           <div class="hero-actions">
@@ -204,11 +216,12 @@ Add persistent appointment review and resubmission workflow
           </p>
 
           <h2>
-            Give me the details once.
+            Not sure what you need?
           </h2>
 
           <p>
-            Your appointment is not confirmed until I review and accept the request.
+            Choose "Not Sure, Help Me Choose" and tell me what you are trying to get notarized.
+            I will contact you before the appointment so we can determine the appropriate next step.
           </p>
 
           <div class="hours-box">
@@ -283,6 +296,7 @@ Add persistent appointment review and resubmission workflow
 
 
           <div class="form-grid">
+
 
             <div class="form-group">
 
@@ -636,16 +650,87 @@ Add persistent appointment review and resubmission workflow
 
             <div class="form-group">
 
+              <label for="notarial-act-type">
+                Notarial Act Needed
+              </label>
+
+              <select
+                id="notarial-act-type"
+                name="notarialActType"
+                required
+              >
+
+                <option value="">
+                  Select one
+                </option>
+
+                <option value="Acknowledgment">
+                  Acknowledgment
+                </option>
+
+                <option value="Jurat">
+                  Jurat
+                </option>
+
+                <option value="Oath or Affirmation">
+                  Oath or Affirmation
+                </option>
+
+                <option value="Copy Certification">
+                  Copy Certification, when permitted
+                </option>
+
+                <option value="Not Sure, Help Me Choose">
+                  Not Sure, Help Me Choose
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="form-group">
+
               <label for="document-type">
                 Document Type
               </label>
 
-              <input
-                type="text"
+              <select
                 id="document-type"
                 name="documentType"
                 required
+                disabled
               >
+
+                <option value="">
+                  Select a notarial act first
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div
+              class="form-group full"
+              id="notarial-help-group"
+              hidden
+            >
+
+              <label for="notarial-help-description">
+                What are you trying to get notarized?
+              </label>
+
+              <textarea
+                id="notarial-help-description"
+                name="notarialHelpDescription"
+                placeholder="Describe the document and what you are trying to accomplish. Do not enter Social Security numbers, account numbers, passwords, or other highly sensitive information."
+              ></textarea>
+
+              <p class="small-print">
+                No problem if you do not know the correct notarial act.
+                I will contact you using your preferred contact method so we can review what you need before the appointment.
+              </p>
 
             </div>
 
@@ -779,6 +864,7 @@ Add persistent appointment review and resubmission workflow
               <textarea
                 id="message"
                 name="message"
+                placeholder="Tell me anything else I should know before responding."
               ></textarea>
 
             </div>
@@ -815,7 +901,7 @@ Add persistent appointment review and resubmission workflow
                   required
                 >
 
-                I have reviewed the Privacy Policy and understand that I should not submit highly sensitive information through this form.
+                I have reviewed the Privacy Policy and understand that I should not submit Social Security numbers, financial account numbers, passwords, or full sensitive documents through this form.
 
               </label>
 
@@ -918,13 +1004,17 @@ Add persistent appointment review and resubmission workflow
         </p>
 
         <p>
+
           <a href="privacy.html">
             Privacy
           </a>
+
           |
+
           <a href="terms.html">
             Terms
           </a>
+
         </p>
 
       </div>
