@@ -4,12 +4,20 @@ RCW SR. NOTARY SERVICES
 FILE: assets/js/main.js
 
 CHANGE NOTES
-Version: 1.7.3
-Date: August 25, 2026
+Version: 1.7.4
+Date: September 4, 2026
 
 Changes:
+- Clear NotarialHelpDescription whenever a definite
+  notarial act is selected.
+- Preserve NotarialHelpDescription only when
+  "Not Sure, Help Me Choose" is selected.
+- Clear stale NotarialHelpDescription restored from
+  sessionStorage when the field no longer applies.
+- Added final pre-submission sanitization so stale hidden
+  help text cannot reach Formspree or Google Sheets.
 - Standardized review language as Needs Service Review.
-- Refreshing contact.html now clears all saved form data.
+- Refreshing contact.html clears all saved form data.
 - Refresh creates a new SubmissionId.
 - Refresh resets SubmissionType to New Request.
 - Browser Back navigation preserves the submitted request.
@@ -26,7 +34,7 @@ Changes:
 - Preserved 150-mile travel-radius messaging.
 
 GITHUB COMMIT:
-Version 1.7.3 - Standardize service review and clear form on refresh
+Version 1.7.4 - Clear stale notarial help description
 =========================================================
 */
 
@@ -44,8 +52,8 @@ document.addEventListener(
     =====================================================
     */
 
-const GOOGLE_SHEETS_URL =
-  "https://script.google.com/macros/s/AKfycbxhlpXIjnApIN3yPyl68TRk5eFCbDK2OtBVRaPUbcE-9D_F7CzFEgb6iNlE53BaukAz/exec";
+    const GOOGLE_SHEETS_URL =
+      "https://script.google.com/macros/s/AKfycbxhlpXIjnApIN3yPyl68TRk5eFCbDK2OtBVRaPUbcE-9D_F7CzFEgb6iNlE53BaukAz/exec";
 
 
     const STORAGE_KEY =
@@ -863,6 +871,29 @@ const GOOGLE_SHEETS_URL =
         !needsHelp;
 
 
+      /*
+      ---------------------------------------------------
+      VERSION 1.7.4
+
+      If the customer has selected a definite notarial
+      act, the help-description field no longer applies.
+
+      Clear any text left from:
+      - an earlier selection
+      - Review or Change
+      - browser Back navigation
+      - sessionStorage restoration
+      ---------------------------------------------------
+      */
+
+      if (!needsHelp) {
+
+        notarialHelpDescription.value =
+          "";
+
+      }
+
+
       if (needsHelp) {
 
         setFormMessage(
@@ -1295,6 +1326,30 @@ const GOOGLE_SHEETS_URL =
             }
 
 
+            /*
+            -----------------------------------------------
+            VERSION 1.7.4
+
+            Never save stale notarial help text unless
+            Help Me Choose is actually selected.
+            -----------------------------------------------
+            */
+
+            if (
+              field.name ===
+                "notarialHelpDescription" &&
+              notarialActType.value !==
+                "Not Sure, Help Me Choose"
+            ) {
+
+              saved[field.name] =
+                "";
+
+              return;
+
+            }
+
+
             saved[
               field.name
             ] =
@@ -1365,9 +1420,6 @@ const GOOGLE_SHEETS_URL =
             saved.documentType || ""
           );
 
-
-          updateNotarialHelpWorkflow();
-
         }
 
 
@@ -1396,6 +1448,28 @@ const GOOGLE_SHEETS_URL =
               }
 
 
+              /*
+              ---------------------------------------------
+              Do not restore help text unless the saved
+              request actually used Help Me Choose.
+              ---------------------------------------------
+              */
+
+              if (
+                name ===
+                  "notarialHelpDescription" &&
+                saved.notarialActType !==
+                  "Not Sure, Help Me Choose"
+              ) {
+
+                field.value =
+                  "";
+
+                return;
+
+              }
+
+
               if (
                 field.type ===
                 "checkbox"
@@ -1418,6 +1492,18 @@ const GOOGLE_SHEETS_URL =
 
             }
           );
+
+
+        /*
+        -------------------------------------------------
+        Run workflow AFTER restoration.
+
+        This guarantees stale hidden text is cleared after
+        sessionStorage values have been restored.
+        -------------------------------------------------
+        */
+
+        updateNotarialHelpWorkflow();
 
 
       } catch (error) {
@@ -1746,6 +1832,29 @@ const GOOGLE_SHEETS_URL =
 
         /*
         -------------------------------------------------
+        VERSION 1.7.4
+        FINAL HELP-DESCRIPTION SANITIZATION
+
+        This happens immediately before FormData is built.
+        Therefore neither Formspree nor Google Sheets can
+        receive stale help-description text when a
+        definite notarial act is selected.
+        -------------------------------------------------
+        */
+
+        if (
+          notarialActType.value !==
+          "Not Sure, Help Me Choose"
+        ) {
+
+          notarialHelpDescription.value =
+            "";
+
+        }
+
+
+        /*
+        -------------------------------------------------
         REQUEST TYPE
         -------------------------------------------------
         */
@@ -1790,6 +1899,15 @@ const GOOGLE_SHEETS_URL =
 
 
         try {
+
+          /*
+          -------------------------------------------------
+          IMPORTANT
+
+          FormData is deliberately constructed AFTER the
+          final stale-help-field cleanup.
+          -------------------------------------------------
+          */
 
           const formData =
             new FormData(
