@@ -4,37 +4,27 @@ RCW SR. NOTARY SERVICES
 FILE: assets/js/main.js
 
 CHANGE NOTES
-Version: 1.7.4
-Date: September 4, 2026
+Version: 1.7.5
+Date: September 5, 2026
 
 Changes:
-- Clear NotarialHelpDescription whenever a definite
-  notarial act is selected.
-- Preserve NotarialHelpDescription only when
-  "Not Sure, Help Me Choose" is selected.
-- Clear stale NotarialHelpDescription restored from
-  sessionStorage when the field no longer applies.
-- Added final pre-submission sanitization so stale hidden
-  help text cannot reach Formspree or Google Sheets.
-- Standardized review language as Needs Service Review.
-- Refreshing contact.html clears all saved form data.
-- Refresh creates a new SubmissionId.
-- Refresh resets SubmissionType to New Request.
-- Browser Back navigation preserves the submitted request.
-- Review or Change My Request preserves the same SubmissionId.
-- Resubmitted reviewed requests use Updated Request.
-- Start a New Request clears all saved request information.
-- Preserved dependent Notarial Act and Document Type workflow.
-- Preserved Not Sure, Help Me Choose workflow.
-- Preserved Formspree submission.
-- Preserved Google Sheets submission.
-- Preserved phone formatting.
-- Preserved date/time validation.
+- Removed redundant second browser validity pass from the
+  submit handler.
+- Browser native validation now runs only once before the
+  submit event.
+- Preserved custom phone validation.
+- Preserved appointment date/time validation.
 - Preserved Florida mobile-service validation.
-- Preserved 150-mile travel-radius messaging.
+- Preserved Not Sure, Help Me Choose validation.
+- Preserved stale NotarialHelpDescription cleanup.
+- Preserved sessionStorage and review/resubmission workflow.
+- Preserved Formspree submission.
+- Preserved Google Sheets submission using the current
+  deployed Apps Script URL.
+- Added clearer submission-stage console logging.
 
 GITHUB COMMIT:
-Version 1.7.4 - Clear stale notarial help description
+Version 1.7.5 - Remove redundant submit validity pass
 =========================================================
 */
 
@@ -871,21 +861,6 @@ document.addEventListener(
         !needsHelp;
 
 
-      /*
-      ---------------------------------------------------
-      VERSION 1.7.4
-
-      If the customer has selected a definite notarial
-      act, the help-description field no longer applies.
-
-      Clear any text left from:
-      - an earlier selection
-      - Review or Change
-      - browser Back navigation
-      - sessionStorage restoration
-      ---------------------------------------------------
-      */
-
       if (!needsHelp) {
 
         notarialHelpDescription.value =
@@ -1326,15 +1301,6 @@ document.addEventListener(
             }
 
 
-            /*
-            -----------------------------------------------
-            VERSION 1.7.4
-
-            Never save stale notarial help text unless
-            Help Me Choose is actually selected.
-            -----------------------------------------------
-            */
-
             if (
               field.name ===
                 "notarialHelpDescription" &&
@@ -1401,12 +1367,6 @@ document.addEventListener(
           );
 
 
-        /*
-        -------------------------------------------------
-        RESTORE NOTARIAL ACT FIRST
-        -------------------------------------------------
-        */
-
         if (
           saved.notarialActType
         ) {
@@ -1422,12 +1382,6 @@ document.addEventListener(
 
         }
 
-
-        /*
-        -------------------------------------------------
-        RESTORE ALL OTHER FIELDS
-        -------------------------------------------------
-        */
 
         Object.keys(
           saved
@@ -1447,13 +1401,6 @@ document.addEventListener(
 
               }
 
-
-              /*
-              ---------------------------------------------
-              Do not restore help text unless the saved
-              request actually used Help Me Choose.
-              ---------------------------------------------
-              */
 
               if (
                 name ===
@@ -1493,15 +1440,6 @@ document.addEventListener(
             }
           );
 
-
-        /*
-        -------------------------------------------------
-        Run workflow AFTER restoration.
-
-        This guarantees stale hidden text is cleared after
-        sessionStorage values have been restored.
-        -------------------------------------------------
-        */
 
         updateNotarialHelpWorkflow();
 
@@ -1694,6 +1632,11 @@ document.addEventListener(
         event.preventDefault();
 
 
+        console.log(
+          "RCW submit handler started."
+        );
+
+
         /*
         -------------------------------------------------
         NORMALIZE STATE
@@ -1748,24 +1691,6 @@ document.addEventListener(
 
 
         updateNotarialHelpWorkflow();
-
-
-        /*
-        -------------------------------------------------
-        HTML VALIDATION
-        -------------------------------------------------
-        */
-
-        if (
-          !contactForm.checkValidity()
-        ) {
-
-          contactForm.reportValidity();
-
-
-          return;
-
-        }
 
 
         /*
@@ -1832,13 +1757,7 @@ document.addEventListener(
 
         /*
         -------------------------------------------------
-        VERSION 1.7.4
         FINAL HELP-DESCRIPTION SANITIZATION
-
-        This happens immediately before FormData is built.
-        Therefore neither Formspree nor Google Sheets can
-        receive stale help-description text when a
-        definite notarial act is selected.
         -------------------------------------------------
         */
 
@@ -1899,15 +1818,6 @@ document.addEventListener(
 
 
         try {
-
-          /*
-          -------------------------------------------------
-          IMPORTANT
-
-          FormData is deliberately constructed AFTER the
-          final stale-help-field cleanup.
-          -------------------------------------------------
-          */
 
           const formData =
             new FormData(
