@@ -4,20 +4,25 @@ RCW SR. NOTARY SERVICES
 FILE: contact.html
 
 CHANGE NOTES
-Version: 1.3
+Version: 1.4
 Date: September 5, 2026
 
 Changes:
-- Corrected Formspree endpoint to the verified RCW appointment form.
+- Restored the Formspree endpoint verified directly from
+  the RCW Sr. Notary Services Formspree account.
+- Correct Formspree endpoint is /f/xnpagrwk.
 - Preserved built-in email validation.
-- Preserved ZIP Code validation for ##### and #####-#### formats.
+- Preserved ZIP Code validation for ##### and #####-####
+  formats.
 - Preserved Remote Online Notary and Mobile Notary options.
 - Preserved guided Notarial Act and Document Type workflow.
-- Preserved appointment persistence and resubmission workflow.
+- Preserved appointment persistence and resubmission
+  workflow.
 - Preserved Google Sheets integration.
+- Designed for main.js Version 1.7.5.
 
 GITHUB COMMIT:
-Version 1.3 - Correct Formspree appointment endpoint
+Version 1.4 - Restore verified Formspree endpoint
 =========================================================
 -->
 
@@ -267,7 +272,7 @@ Version 1.3 - Correct Formspree appointment endpoint
         <form
           class="service-choice-card"
           id="contact-form"
-          action="https://formspree.io/f/xpqagwrk"
+          action="https://formspree.io/f/xnpagrwk"
           method="POST"
         >
 
