@@ -1,773 +1,787 @@
-<!--
-=========================================================
-RCW NOTARIAL SERVICES
-FILE: index.html
-
-OWNER:
-Romando C. Williams Sr.
-
-BUSINESS:
-Mobile Notary & Wedding Officiant
-Serving the Greater Tampa Bay area and others upon request.
-
-CONTACT:
-Phone: (813) 610-5585
-Email: RCWNotaryServices@Yahoo.com
-
-DESIGN:
-Font: Times New Roman
-Primary: Navy Blue
-Accent: Gold
-Text: White / Dark Navy
-Brand Mark: Approved RCW logo
-
-LOGO FILE:
-assets/images/rcw-sr-logo-full.png
-
-LOGO PLACEMENT:
-1. Sticky header
-2. Main hero
-3. Services intro
-4. Why RCW section
-5. Request Service section
-6. Contact section
-7. Footer
-
-WEBSITE PURPOSE:
-1. Explain RCW Notarial Services quickly
-2. Show available services
-3. Establish trust and professionalism
-4. Make calling or requesting service easy
-5. Capture customer inquiries
-6. Preserve Google Forms / Google Sheets workflow for now
-
-IMPORTANT:
-- Keep the approved RCW logo visible throughout the site.
-- Do not replace the logo with plain text.
-- Do not remove this notes section during future rebuilds.
-- Test the Google Form after any form-related change.
-- Before GitHub publishing, confirm that
-  assets/images/rcw-sr-logo-full.png exists in the repository.
-
-CHANGE NOTES
-Version: 2.0
-Date: September 10, 2026
-
-Changes:
-- Restored the approved RCW logo as the primary brand element.
-- Repeated logo throughout the page without changing the logo itself.
-- Preserved the site notes and section comments.
-- Updated tagline to:
-  "Professional • Understanding • Available When You Need Me"
-- Preserved current Google Form embed.
-- Preserved navy, gold, white and Times New Roman branding.
-
-GITHUB COMMIT:
-Rebuild homepage with RCW logo and documented structure
-=========================================================
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="RCW Notarial Services provides mobile notary and wedding officiant services throughout the Greater Tampa Bay area and other locations upon request.">
-  <meta name="theme-color" content="#0B2748">
-  <title>RCW Notarial Services | Mobile Notary & Wedding Officiant</title>
 
-  <style>
-    :root {
-      --navy: #0B2748;
-      --navy-light: #12385F;
-      --navy-dark: #071A30;
-      --gold: #D4AF37;
-      --cream: #F7F2E8;
-      --white: #FFFFFF;
-      --ink: #17202A;
-    }
+  <meta
+    name="description"
+    content="RCW Sr. Notary Services provides Florida Remote Online Notary and mobile notary appointments with flexible scheduling, including evenings, weekends, and special scheduling requests."
+  >
 
-    * {
-      box-sizing: border-box;
-    }
+  <meta name="theme-color" content="#f47a20">
 
-    html {
-      scroll-behavior: smooth;
-    }
+  <title>RCW Sr. Notary Services | Remote Online & Mobile Notary</title>
 
-    body {
-      margin: 0;
-      font-family: "Times New Roman", Times, serif;
-      background: var(--cream);
-      color: var(--ink);
-      line-height: 1.55;
-    }
+  <link rel="stylesheet" href="assets/css/styles.css">
 
-    img {
-      max-width: 100%;
-    }
-
-    a {
-      color: inherit;
-    }
-
-    .container {
-      width: min(1100px, calc(100% - 40px));
-      margin: 0 auto;
-    }
-
-    /* =====================================================
-       HEADER / NAVIGATION
-       ===================================================== */
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: rgba(11, 39, 72, 0.98);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.55);
-    }
-
-    .nav {
-      min-height: 76px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      text-decoration: none;
-    }
-
-    .header-logo {
-      width: 170px;
-      max-height: 62px;
-      object-fit: contain;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-
-    .nav-links a {
-      color: var(--white);
-      text-decoration: none;
-      font-size: 1rem;
-    }
-
-    .nav-links a:hover,
-    .nav-links a:focus {
-      color: var(--gold);
-    }
-
-    /* =====================================================
-       HERO
-       ===================================================== */
-
-    .hero {
-      background: var(--navy);
-      color: var(--white);
-      text-align: center;
-      padding: 74px 20px 68px;
-    }
-
-    .hero-inner {
-      max-width: 920px;
-      margin: 0 auto;
-    }
-
-    .hero-logo {
-      display: block;
-      width: min(500px, 90vw);
-      max-height: 250px;
-      object-fit: contain;
-      margin: 0 auto 26px;
-    }
-
-    .hero h1 {
-      max-width: 800px;
-      margin: 0 auto 14px;
-      font-size: clamp(2rem, 5vw, 3.45rem);
-      line-height: 1.08;
-      font-weight: normal;
-    }
-
-    .promise {
-      margin: 0 0 20px;
-      color: var(--gold);
-      font-size: clamp(1.05rem, 2.5vw, 1.38rem);
-      font-weight: bold;
-    }
-
-    .service-area {
-      max-width: 760px;
-      margin: 0 auto;
-      font-size: 1.1rem;
-    }
-
-    .hero-actions,
-    .contact-actions {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 28px;
-    }
-
-    .button {
-      display: inline-block;
-      min-width: 190px;
-      padding: 13px 20px;
-      border: 1px solid var(--gold);
-      border-radius: 4px;
-      text-decoration: none;
-      font-size: 1.05rem;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .button-primary {
-      background: var(--gold);
-      color: var(--navy);
-    }
-
-    .button-secondary {
-      background: transparent;
-      color: var(--white);
-    }
-
-    .contact-line {
-      margin-top: 24px;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px 28px;
-      font-size: 1.08rem;
-    }
-
-    .contact-line a {
-      color: var(--white);
-      text-decoration: none;
-      border-bottom: 1px solid rgba(255,255,255,0.35);
-    }
-
-    /* =====================================================
-       SHARED SECTION STYLES
-       ===================================================== */
-
-    .section {
-      padding: 66px 20px;
-    }
-
-    .section-title {
-      margin: 0 0 12px;
-      text-align: center;
-      color: var(--navy);
-      font-size: clamp(2rem, 4vw, 2.7rem);
-      font-weight: normal;
-    }
-
-    .section-intro {
-      max-width: 780px;
-      margin: 0 auto 36px;
-      text-align: center;
-      font-size: 1.08rem;
-    }
-
-    .section-logo {
-      display: block;
-      width: min(230px, 60vw);
-      max-height: 120px;
-      object-fit: contain;
-      margin: 0 auto 18px;
-    }
-
-    .navy-section {
-      background: var(--navy);
-      color: var(--white);
-    }
-
-    .navy-section .section-title {
-      color: var(--gold);
-    }
-
-    /* =====================================================
-       SERVICES
-       ===================================================== */
-
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 20px;
-    }
-
-    .service-card {
-      background: var(--white);
-      border: 1px solid #d8d4ca;
-      border-top: 4px solid var(--gold);
-      padding: 25px;
-      min-height: 160px;
-    }
-
-    .service-card h3 {
-      margin: 0 0 8px;
-      color: var(--navy);
-      font-size: 1.38rem;
-      font-weight: normal;
-    }
-
-    /* =====================================================
-       WHY RCW
-       ===================================================== */
-
-    .why-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
-    }
-
-    .why-card {
-      padding: 24px;
-      text-align: center;
-      border: 1px solid rgba(212, 175, 55, 0.58);
-    }
-
-    .why-card h3 {
-      margin: 0 0 8px;
-      color: var(--gold);
-      font-size: 1.38rem;
-      font-weight: normal;
-    }
-
-    /* =====================================================
-       SERVICE AREA
-       ===================================================== */
-
-    .area-box {
-      max-width: 840px;
-      margin: 0 auto;
-      background: var(--white);
-      border-left: 5px solid var(--gold);
-      padding: 30px;
-    }
-
-    /* =====================================================
-       REQUEST SERVICE
-       ===================================================== */
-
-    .request-wrap {
-      max-width: 840px;
-      margin: 0 auto;
-      padding: 26px;
-      background: var(--navy-light);
-      border: 1px solid var(--gold);
-    }
-
-    .request-wrap h2 {
-      margin: 0 0 10px;
-      color: var(--gold);
-      text-align: center;
-      font-size: 2rem;
-      font-weight: normal;
-    }
-
-    .request-wrap p {
-      text-align: center;
-    }
-
-    .form-logo {
-      display: block;
-      width: min(280px, 72vw);
-      max-height: 145px;
-      object-fit: contain;
-      margin: 0 auto 20px;
-    }
-
-    iframe {
-      display: block;
-      width: 100%;
-      min-height: 850px;
-      margin-top: 22px;
-      border: 0;
-      background: var(--white);
-    }
-
-    /* =====================================================
-       CONTACT
-       ===================================================== */
-
-    .contact-card {
-      max-width: 780px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .contact-card .button-secondary {
-      color: var(--navy);
-      background: var(--white);
-    }
-
-    /* =====================================================
-       FOOTER
-       ===================================================== */
-
-    .footer {
-      background: var(--navy-dark);
-      color: var(--white);
-      text-align: center;
-      padding: 34px 20px;
-      border-top: 1px solid rgba(212, 175, 55, 0.50);
-    }
-
-    .footer-logo {
-      display: block;
-      width: min(250px, 68vw);
-      max-height: 130px;
-      object-fit: contain;
-      margin: 0 auto 16px;
-    }
-
-    .footer p {
-      margin: 6px 0;
-    }
-
-    /* =====================================================
-       RESPONSIVE
-       ===================================================== */
-
-    @media (max-width: 760px) {
-      .nav {
-        flex-direction: column;
-        justify-content: center;
-        padding: 12px 0 14px;
-      }
-
-      .nav-links {
-        justify-content: center;
-      }
-
-      .header-logo {
-        width: 145px;
-      }
-
-      .hero {
-        padding-top: 54px;
-      }
-
-      .services-grid,
-      .why-grid {
-        grid-template-columns: 1fr;
-      }
-
-      iframe {
-        min-height: 930px;
-      }
-    }
-  </style>
+  <script src="assets/js/main.js" defer></script>
 </head>
 
 <body>
 
-  <!-- =====================================================
-       NAVIGATION
-       Logo stays visible while the visitor scrolls.
-       ===================================================== -->
-  <header class="topbar">
-    <div class="container">
-      <nav class="nav" aria-label="Main navigation">
+  <a class="skip-link" href="#main-content">
+    Skip to main content
+  </a>
 
-        <a class="brand" href="#home" aria-label="RCW Notarial Services home">
-          <img
-            src="assets/images/rcw-sr-logo-full.png"
-            alt="RCW Notarial Services logo"
-            class="header-logo"
-          >
+  <header class="site-header">
+
+    <div class="container header-inner">
+
+      <a
+        class="brand"
+        href="index.html"
+        aria-label="RCW Sr. Notary Services home"
+      >
+        <img
+          src="assets/images/rcw-sr-logo-full.png"
+          alt="RCW Sr. Notary Services logo"
+          class="site-logo"
+        >
+      </a>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="primary-navigation"
+      >
+        <span class="sr-only">Open navigation menu</span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav
+        id="primary-navigation"
+        class="primary-nav"
+        aria-label="Primary navigation"
+      >
+        <a class="active" href="index.html">Home</a>
+        <a href="services.html">Services</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="about.html">About</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">Contact</a>
+
+        <a
+          class="button button-small"
+          href="contact.html"
+        >
+          Request an Appointment
         </a>
-
-        <div class="nav-links">
-          <a href="#services">Services</a>
-          <a href="#why-rcw">Why RCW</a>
-          <a href="#service-area">Service Area</a>
-          <a href="#request">Request Service</a>
-        </div>
-
       </nav>
+
     </div>
+
   </header>
 
+  <main id="main-content">
 
-  <!-- =====================================================
-       HERO
-       Primary sales message and strongest logo placement.
-       ===================================================== -->
-  <section class="hero" id="home">
-    <div class="hero-inner">
+    <section class="hero">
 
-      <img
-        src="assets/images/rcw-sr-logo-full.png"
-        alt="RCW Notarial Services"
-        class="hero-logo"
-      >
+      <div class="container hero-grid">
 
-      <h1>Mobile Notary & Wedding Officiant for Tampa Bay</h1>
+        <div class="hero-copy">
 
-      <p class="promise">
-        Professional • Understanding • Available When You Need Me
-      </p>
-
-      <p class="service-area">
-        Serving Hillsborough, Polk, Pinellas and Pasco counties,
-        and others upon request.
-      </p>
-
-      <div class="hero-actions">
-        <a class="button button-primary" href="#request">Request Service</a>
-        <a class="button button-secondary" href="tel:+18136105585">
-          Call (813) 610-5585
-        </a>
-      </div>
-
-      <div class="contact-line">
-        <a href="tel:+18136105585">(813) 610-5585</a>
-        <a href="mailto:RCWNotaryServices@Yahoo.com">
-          RCWNotaryServices@Yahoo.com
-        </a>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- =====================================================
-       SERVICES
-       Keep service descriptions clear and non-legal.
-       ===================================================== -->
-  <section class="section" id="services">
-    <div class="container">
-
-      <img
-        src="assets/images/rcw-sr-logo-full.png"
-        alt=""
-        class="section-logo"
-        aria-hidden="true"
-      >
-
-      <h2 class="section-title">Services</h2>
-
-      <p class="section-intro">
-        Straightforward notary and officiant services with mobile
-        appointments built around your needs.
-      </p>
-
-      <div class="services-grid">
-
-        <article class="service-card">
-          <h3>General Notary Services</h3>
-          <p>
-            Affidavits, acknowledgments, jurats, powers of attorney
-            and other common notarizations.
+          <p class="eyebrow">
+            Florida Remote Online & Mobile Notary
           </p>
-        </article>
 
-        <article class="service-card">
-          <h3>Mobile Appointments</h3>
-          <p>
-            I come to homes, offices and other agreed locations
-            throughout the Greater Tampa Bay area.
+          <h1>
+            Your schedule comes first.
+          </h1>
+
+          <p class="hero-text">
+            Need a document notarized online?
+            I can handle it remotely.
+            Need someone to come to you?
+            I can do that too.
           </p>
-        </article>
 
-        <article class="service-card">
-          <h3>Hospital & Facility Visits</h3>
-          <p>
-            Mobile service for hospitals, rehabilitation facilities
-            and other care locations when appropriate.
+          <p class="hero-text">
+            RCW Sr. Notary Services provides secure,
+            flexible notarization for clients dealing with busy schedules,
+            mobility limitations,
+            time-zone conflicts,
+            transportation problems,
+            medical recovery,
+            and last-minute needs.
           </p>
-        </article>
 
-        <article class="service-card">
-          <h3>Wedding Officiant</h3>
-          <p>
-            Wedding ceremonies and vow renewals with a professional,
-            personal approach.
-          </p>
-        </article>
+          <div class="hero-actions">
 
-      </div>
-    </div>
-  </section>
+            <a
+              class="button"
+              href="contact.html"
+            >
+              Request an Appointment
+            </a>
 
+            <a
+              class="button button-secondary"
+              href="pricing.html"
+            >
+              View Pricing
+            </a>
 
-  <!-- =====================================================
-       WHY RCW
-       Brand positioning: professional, understanding, available.
-       ===================================================== -->
-  <section class="section navy-section" id="why-rcw">
-    <div class="container">
+          </div>
 
-      <img
-        src="assets/images/rcw-sr-logo-full.png"
-        alt=""
-        class="section-logo"
-        aria-hidden="true"
-      >
+          <ul
+            class="hero-facts"
+            aria-label="Business highlights"
+          >
+            <li>
+              Available daily from 7:00 AM to 11:00 PM Eastern
+            </li>
 
-      <h2 class="section-title">Why RCW</h2>
+            <li>
+              Earlier and later appointments considered by request
+            </li>
 
-      <p class="section-intro">
-        RCW Notarial Services is intentionally personal.
-        You deal directly with the person handling your appointment.
-      </p>
+            <li>
+              Remote Online Notary appointments
+            </li>
 
-      <div class="why-grid">
+            <li>
+              Mobile appointments available
+            </li>
 
-        <div class="why-card">
-          <h3>Professional</h3>
-          <p>Clear communication, careful work and respect for your time.</p>
+            <li>
+              Veteran owned
+            </li>
+
+            <li>
+              Secure, professional, and flexible
+            </li>
+          </ul>
+
         </div>
 
-        <div class="why-card">
-          <h3>Understanding</h3>
-          <p>
-            Not every appointment is routine. I take the time to understand
-            what you need before we meet.
-          </p>
-        </div>
-
-        <div class="why-card">
-          <h3>Available</h3>
-          <p>
-            Flexible scheduling and travel beyond the core Tampa Bay area
-            when arrangements make sense.
-          </p>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-
-  <!-- =====================================================
-       SERVICE AREA
-       Core market plus farther travel by request.
-       ===================================================== -->
-  <section class="section" id="service-area">
-    <div class="container">
-
-      <h2 class="section-title">Service Area</h2>
-
-      <div class="area-box">
-        <p>
-          My core service area is the Greater Tampa Bay region,
-          including Hillsborough, Polk, Pinellas and Pasco counties.
-        </p>
-
-        <p>
-          Need service farther away? Ask. Orlando, Sarasota, Ocala and
-          other Florida locations may be available by request, with travel
-          pricing discussed before the appointment.
-        </p>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- =====================================================
-       REQUEST SERVICE
-       Current version keeps the Google Form connection.
-       Future version may replace the iframe with a native RCW form.
-       ===================================================== -->
-  <section class="section navy-section" id="request">
-    <div class="container">
-
-      <div class="request-wrap">
-
-        <img
-          src="assets/images/rcw-sr-logo-full.png"
-          alt="RCW Notarial Services"
-          class="form-logo"
+        <aside
+          class="availability-card"
+          aria-label="Availability details"
         >
 
-        <h2>Request a Notary or Officiant</h2>
+          <p class="card-label">
+            Flexible Scheduling
+          </p>
 
-        <p>
-          Send your request below. I will review the details and contact
-          you about availability and pricing.
-        </p>
+          <h2>
+            East Coast hours. West Coast friendly.
+          </h2>
 
-        <iframe
-          src="https://docs.google.com/forms/d/e/1FAIpQLScxY5khyKG9FhPm4scyhRDWS-_NUTKucLIzlaLl2rWzpDk82g/viewform?embedded=true"
-          title="RCW Notarial Services Request Form">
-          Loading…
-        </iframe>
+          <p>
+            My normal availability runs from
+            7:00 AM to 11:00 PM Eastern.
+            If you need something outside those hours,
+            submit your request and tell me what works for you.
+          </p>
+
+          <div class="hours-box">
+
+            <span>
+              Normal Hours
+            </span>
+
+            <strong>
+              7:00 AM to 11:00 PM ET
+            </strong>
+
+          </div>
+
+          <a
+            class="text-link"
+            href="contact.html"
+          >
+            Tell me what time works for you
+          </a>
+
+        </aside>
 
       </div>
-    </div>
-  </section>
 
+    </section>
 
-  <!-- =====================================================
-       CONTACT
-       Secondary conversion point for visitors who prefer phone/email.
-       ===================================================== -->
-  <section class="section" id="contact">
-    <div class="container">
+    <section
+      class="trust-strip"
+      aria-label="Service options"
+    >
 
-      <div class="contact-card">
+      <div class="container trust-grid">
 
-        <img
-          src="assets/images/rcw-sr-logo-full.png"
-          alt=""
-          class="section-logo"
-          aria-hidden="true"
-        >
+        <div>
+          <strong>Remote</strong>
+          <span>
+            Notarize from a compatible device
+          </span>
+        </div>
 
-        <h2 class="section-title">Contact RCW</h2>
+        <div>
+          <strong>Mobile</strong>
+          <span>
+            I can come to you by appointment
+          </span>
+        </div>
 
-        <p class="section-intro">
-          Call, email or use the request form.
-          I will confirm availability before any appointment is final.
-        </p>
+        <div>
+          <strong>Flexible</strong>
+          <span>
+            Evenings, weekends, and special scheduling
+          </span>
+        </div>
 
-        <div class="contact-actions">
-          <a class="button button-primary" href="tel:+18136105585">
-            Call (813) 610-5585
+        <div>
+          <strong>Personal</strong>
+          <span>
+            Work directly with Romando
+          </span>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section
+      id="service-options"
+      class="section"
+    >
+
+      <div class="container">
+
+        <div class="section-heading">
+
+          <p class="eyebrow">
+            Choose Your Service
+          </p>
+
+          <h2>
+            Online when convenient. In person when necessary.
+          </h2>
+
+          <p>
+            Choose the service that fits your situation.
+            If you are unsure which option you need,
+            submit an appointment request and I will help you determine the next step.
+          </p>
+
+        </div>
+
+        <div class="service-choice-grid">
+
+          <article class="service-choice-card">
+
+            <p class="service-number">
+              01
+            </p>
+
+            <h3>
+              Notarize Online
+            </h3>
+
+            <p>
+              Complete eligible notarizations remotely
+              using a secure Florida-compliant Remote Online Notary platform.
+            </p>
+
+            <ul>
+              <li>No travel required</li>
+              <li>Great for busy schedules</li>
+              <li>Time-zone friendly</li>
+              <li>Evening and weekend availability</li>
+              <li>Identity verification handled through the RON platform</li>
+            </ul>
+
+            <a
+              class="button"
+              href="services.html#remote"
+            >
+              Remote Notary Services
+            </a>
+
+          </article>
+
+          <article class="service-choice-card featured">
+
+            <p class="service-number">
+              02
+            </p>
+
+            <h3>
+              Come to Me
+            </h3>
+
+            <p>
+              If getting to a notary is difficult,
+              I can travel to you by appointment.
+            </p>
+
+            <ul>
+              <li>Home visits</li>
+              <li>Office visits</li>
+              <li>Hospitals</li>
+              <li>Rehabilitation facilities</li>
+              <li>Assisted-living communities</li>
+              <li>Nursing facilities</li>
+              <li>Other agreed locations</li>
+            </ul>
+
+            <a
+              class="button"
+              href="services.html#mobile"
+            >
+              Mobile Notary Services
+            </a>
+
+          </article>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="section section-pewter">
+
+      <div class="container mobile-highlight-grid">
+
+        <div>
+
+          <p class="eyebrow eyebrow-light">
+            Mobile Notary
+          </p>
+
+          <h2>
+            You do not have to come to me. I can come to you.
+          </h2>
+
+        </div>
+
+        <div>
+
+          <p>
+            Mobile service is available for seniors,
+            people with limited mobility,
+            caregivers,
+            clients recovering at home,
+            people without reliable transportation,
+            and anyone whose circumstances make travel difficult.
+          </p>
+
+          <p>
+            Travel fees are based on distance from the
+            RCW Sr. service area in ZIP Code 33594.
+            Your complete estimated price will be provided
+            before the appointment is confirmed.
+          </p>
+
+          <a
+            class="button button-light"
+            href="pricing.html"
+          >
+            Calculate Mobile Pricing
+          </a>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="container">
+
+        <div class="section-heading">
+
+          <p class="eyebrow">
+            Common Services
+          </p>
+
+          <h2>
+            Straightforward notary help.
+          </h2>
+
+        </div>
+
+        <div class="card-grid">
+
+          <article class="service-card">
+
+            <span class="service-number">
+              01
+            </span>
+
+            <h3>
+              General Notarizations
+            </h3>
+
+            <p>
+              Acknowledgments,
+              jurats,
+              affidavits,
+              sworn statements,
+              and other eligible documents.
+            </p>
+
+          </article>
+
+          <article class="service-card">
+
+            <span class="service-number">
+              02
+            </span>
+
+            <h3>
+              Odd-Hour Appointments
+            </h3>
+
+            <p>
+              Scheduling for night-shift workers,
+              travelers,
+              caregivers,
+              families,
+              and clients facing urgent deadlines.
+            </p>
+
+          </article>
+
+          <article class="service-card">
+
+            <span class="service-number">
+              03
+            </span>
+
+            <h3>
+              Time-Zone Scheduling
+            </h3>
+
+            <p>
+              Flexible appointments for clients outside Eastern Time,
+              including West Coast customers.
+            </p>
+
+          </article>
+
+          <article class="service-card">
+
+            <span class="service-number">
+              04
+            </span>
+
+            <h3>
+              Mobile Appointments
+            </h3>
+
+            <p>
+              By-appointment travel to homes,
+              offices,
+              hospitals,
+              rehabilitation facilities,
+              assisted-living locations,
+              and other approved meeting places.
+            </p>
+
+          </article>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="pricing-preview">
+
+      <div class="container">
+
+        <div class="section-heading">
+
+          <p class="eyebrow">
+            Pricing
+          </p>
+
+          <h2>
+            Know the numbers before you book.
+          </h2>
+
+          <p>
+            Notarial fees and service charges are clearly separated.
+            Mobile travel charges are calculated based on travel distance.
+          </p>
+
+        </div>
+
+        <div class="pricing-preview-grid">
+
+          <article class="price-card">
+
+            <p class="price-label">
+              In-Person Notarial Act
+            </p>
+
+            <p class="price">
+              $10
+            </p>
+
+            <p>
+              Per notarial act.
+            </p>
+
+          </article>
+
+          <article class="price-card">
+
+            <p class="price-label">
+              Remote Online Notarial Act
+            </p>
+
+            <p class="price">
+              $25
+            </p>
+
+            <p>
+              Per online notarial act.
+            </p>
+
+          </article>
+
+          <article class="price-card">
+
+            <p class="price-label">
+              Mobile Service
+            </p>
+
+            <p class="price">
+              $40
+            </p>
+
+            <p>
+              Base mobile service fee,
+              plus calculated travel charges and notarization fees.
+            </p>
+
+          </article>
+
+        </div>
+
+        <div class="center-button">
+
+          <a
+            class="button"
+            href="pricing.html"
+          >
+            View Full Pricing
+          </a>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section
+      id="about"
+      class="section section-pewter"
+    >
+
+      <div class="container about-grid">
+
+        <div>
+
+          <p class="eyebrow eyebrow-light">
+            About
+          </p>
+
+          <h2>
+            Professional service without banker's hours.
+          </h2>
+
+        </div>
+
+        <div>
+
+          <p>
+            RCW Sr. Notary Services is owned and operated by
+            Romando C. Williams Sr.,
+            a commissioned Florida Notary Public
+            and United States military veteran.
+          </p>
+
+          <p>
+            The business is built around clear communication,
+            flexible scheduling,
+            reliable service,
+            and helping people who cannot always operate on a traditional
+            Monday-through-Friday schedule.
+          </p>
+
+          <a
+            class="button button-light"
+            href="about.html"
+          >
+            About RCW Sr.
+          </a>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="container">
+
+        <div class="section-heading">
+
+          <p class="eyebrow">
+            Questions?
+          </p>
+
+          <h2>
+            Get answers before you schedule.
+          </h2>
+
+          <p>
+            Review common questions about identification,
+            Remote Online Notarization,
+            mobile appointments,
+            witnesses,
+            pricing,
+            and scheduling.
+          </p>
+
+        </div>
+
+        <div class="center-button">
+
+          <a
+            class="button"
+            href="faq.html"
+          >
+            Read the FAQ
+          </a>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="section final-cta">
+
+      <div class="container final-cta-inner">
+
+        <div>
+
+          <p class="eyebrow">
+            Ready When You Are
+          </p>
+
+          <h2>
+            Tell me what you need and when you need it.
+          </h2>
+
+          <p>
+            Remote or mobile,
+            send the details and your preferred appointment time.
+          </p>
+
+        </div>
+
+        <div class="final-cta-actions">
+
+          <a
+            class="button"
+            href="contact.html"
+          >
+            Request an Appointment
           </a>
 
           <a
             class="button button-secondary"
-            href="mailto:RCWNotaryServices@Yahoo.com">
-            Send Email
+            href="pricing.html"
+          >
+            Check Pricing
           </a>
+
         </div>
 
       </div>
+
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+
+    <div class="container footer-grid">
+
+      <div>
+
+        <img
+          src="assets/images/rcw-sr-logo-full.png"
+          alt="RCW Sr. Notary Services"
+          class="footer-logo"
+        >
+
+      </div>
+
+      <div>
+
+        <strong>
+          RCW Sr. Notary Services
+        </strong>
+
+        <p>
+          Remote Online & Mobile Notary
+        </p>
+
+        <p>
+          Veteran owned
+        </p>
+
+      </div>
+
+      <div>
+
+        <p>
+          Romando C. Williams Sr.
+        </p>
+
+        <p>
+          Florida Notary Public
+        </p>
+
+        <p>
+          Normal Hours:
+          7:00 AM to 11:00 PM Eastern
+        </p>
+
+      </div>
+
+      <div>
+
+        <p>
+          &copy;
+          <span id="current-year"></span>
+          RCW Sr. Notary Services
+        </p>
+
+        <p>
+          All rights reserved.
+        </p>
+
+        <p>
+          <a href="privacy.html">Privacy</a>
+          |
+          <a href="terms.html">Terms</a>
+        </p>
+
+      </div>
+
     </div>
-  </section>
-
-
-  <!-- =====================================================
-       FOOTER
-       Final logo impression and service-area reminder.
-       ===================================================== -->
-  <footer class="footer">
-
-    <img
-      src="assets/images/rcw-sr-logo-full.png"
-      alt="RCW Notarial Services"
-      class="footer-logo"
-    >
-
-    <p>Mobile Notary & Wedding Officiant</p>
-    <p>Professional • Understanding • Available When You Need Me</p>
-    <p>Serving the Greater Tampa Bay area and others upon request.</p>
 
   </footer>
 
