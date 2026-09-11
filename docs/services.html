@@ -1,8 +1,4 @@
-from pathlib import Path
-
-# Build the expanded Services page as a standalone file that uses the site's
-# existing styles.css, main.js and approved logo.
-html = '''<!--
+<!--
 ===============================================================================
 RCW SR. NOTARY SERVICES
 FILE: services.html
@@ -185,8 +181,3 @@ September 11, 2026
 
 </body>
 </html>
-'''
-
-out = Path("/mnt/data/services.html")
-out.write_text(html, encoding="utf-8")
-print(f"Created {out} with {len(html):,} characters")
