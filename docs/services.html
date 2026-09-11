@@ -1,619 +1,192 @@
-<!--
+from pathlib import Path
+
+# Build the expanded Services page as a standalone file that uses the site's
+# existing styles.css, main.js and approved logo.
+html = '''<!--
 ===============================================================================
 RCW SR. NOTARY SERVICES
 FILE: services.html
 PAGE: Services
 
 PURPOSE:
-Explain the services currently offered by RCW Sr. Notary Services while
-preserving the established website design, navigation, logo, CSS, and JS.
+Explain RCW services in plain language: what the document/service is,
+what it is commonly used for, and how RCW can help.
 
 CURRENT BUSINESS FOCUS:
-1. General Notary Services
-2. Mobile Notary Appointments
-3. Hospital & Care Facility Visits
-4. VIN Verification
-5. Wedding Ceremonies & Vow Renewals
+Mobile Notary & Wedding Officiant
 
 CORE BRAND MESSAGE:
 Professional • Understanding • Available When You Need Me
 
-SERVICE AREA:
-Greater Tampa Bay, including Hillsborough, Polk, Pinellas and Pasco counties.
-Other Florida locations may be considered upon request.
-
 IMPORTANT:
 - Preserve assets/css/styles.css and assets/js/main.js.
-- Preserve the approved RCW logo: assets/images/rcw-sr-logo-full.png
-- Do not replace the approved logo with plain text.
-- Do not add Remote Online Notary marketing until RCW is ready to offer RON.
+- Preserve approved logo: assets/images/rcw-sr-logo-full.png
+- Do not add RON marketing until RCW is ready to offer it.
 - Do not imply legal advice or document preparation.
-- Keep appointment and pricing links working.
-- Preserve this NOTES block and section comments during future edits.
+- Preserve this NOTES block and section comments.
 
 LAST UPDATED:
-September 10, 2026
+September 11, 2026
 ===============================================================================
 -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <meta
-    name="description"
-    content="RCW Sr. Notary Services provides mobile notary, general notarization, hospital and care facility visits, VIN verification, wedding ceremonies, and vow renewals throughout the Greater Tampa Bay area."
-  >
-
+  <meta name="description" content="RCW Sr. Notary Services provides mobile notary, document notarization, VIN verification, wedding ceremonies and vow renewals throughout Greater Tampa Bay.">
   <meta name="theme-color" content="#f47a20">
-
   <title>Services | RCW Sr. Notary Services</title>
-
   <link rel="stylesheet" href="assets/css/styles.css">
-
   <script src="assets/js/main.js" defer></script>
 </head>
-
 <body>
 
-  <a class="skip-link" href="#main-content">
-    Skip to main content
-  </a>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 
-  <!-- ===== HEADER / NAVIGATION ===== -->
-  <header class="site-header">
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="RCW Sr. Notary Services home">
+      <img src="assets/images/rcw-sr-logo-full.png" alt="RCW Sr. Notary Services logo" class="site-logo">
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">
+      <span class="sr-only">Open navigation menu</span><span></span><span></span><span></span>
+    </button>
+    <nav id="primary-navigation" class="primary-nav" aria-label="Primary navigation">
+      <a href="index.html">Home</a>
+      <a href="services.html" aria-current="page">Services</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="about.html">About</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+      <a class="button button-small" href="contact.html">Request an Appointment</a>
+    </nav>
+  </div>
+</header>
 
-    <div class="container header-inner">
+<main id="main-content">
 
-      <a
-        class="brand"
-        href="index.html"
-        aria-label="RCW Sr. Notary Services home"
-      >
-        <img
-          src="assets/images/rcw-sr-logo-full.png"
-          alt="RCW Sr. Notary Services logo"
-          class="site-logo"
-        >
-      </a>
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Mobile Notary & Wedding Officiant</p>
+      <h1>Service built around what you need.</h1>
+      <p class="hero-text">Most people do not speak in notary terminology every day. This page explains the documents and services I commonly handle, what they are generally used for, and how I can help.</p>
+      <p class="hero-text">Professional • Understanding • Available When You Need Me</p>
+      <div class="hero-actions">
+        <a class="button" href="contact.html">Request an Appointment</a>
+        <a class="button button-secondary" href="pricing.html">View Pricing</a>
+      </div>
+    </div>
+    <aside class="availability-card" aria-label="RCW service approach">
+      <p class="card-label">RCW Service</p>
+      <h2>Professional.<br>Understanding.<br>Available.</h2>
+      <p>You deal directly with me from the request through the appointment.</p>
+      <div class="hours-box"><span>Normal Availability</span><strong>7:00 AM to 11:00 PM ET</strong></div>
+      <p class="availability-note">Tell me what time works for you</p>
+    </aside>
+  </div>
+</section>
 
-      <button
-        class="menu-toggle"
-        type="button"
-        aria-expanded="false"
-        aria-controls="primary-navigation"
-      >
-        <span class="sr-only">Open navigation menu</span>
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-
-      <nav
-        id="primary-navigation"
-        class="primary-nav"
-        aria-label="Primary navigation"
-      >
-        <a href="index.html">Home</a>
-        <a href="services.html" aria-current="page">Services</a>
-        <a href="pricing.html">Pricing</a>
-        <a href="about.html">About</a>
-        <a href="faq.html">FAQ</a>
-        <a href="contact.html">Contact</a>
-
-        <a
-          class="button button-small"
-          href="contact.html"
-        >
-          Request an Appointment
-        </a>
-      </nav>
-
+<!-- ===== DOCUMENTS AND NOTARIAL ACTS ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-heading">
+      <p class="eyebrow">Documents & Notarial Services</p>
+      <h2>What it is. What it is used for. How I can help.</h2>
+      <p>If your document already tells you which notarial act is required, I can perform that act after verifying the signer and completing the required notarial certificate.</p>
     </div>
 
-  </header>
+    <div class="card-grid">
+      <article class="service-card"><span class="service-number">01</span><h3>Acknowledgments</h3><p><strong>What it is:</strong> You acknowledge that you signed a document willingly and for its stated purpose.</p><p><strong>Common uses:</strong> Deeds, powers of attorney, contracts, property documents and other important agreements.</p><p><strong>How I help:</strong> I verify your identity, receive your acknowledgment and complete the appropriate notarial certificate.</p></article>
 
-  <main id="main-content">
+      <article class="service-card"><span class="service-number">02</span><h3>Jurats, Oaths & Affirmations</h3><p><strong>What it is:</strong> You swear or affirm that the statements in a document are true.</p><p><strong>Common uses:</strong> Affidavits, sworn statements, applications and other documents requiring an oath or affirmation.</p><p><strong>How I help:</strong> I verify your identity, administer the oath or affirmation, witness the signing when required and complete the certificate.</p></article>
 
-    <!-- ===== SERVICES HERO ===== -->
-    <section class="hero">
+      <article class="service-card"><span class="service-number">03</span><h3>Affidavits & Sworn Statements</h3><p><strong>What it is:</strong> A written statement of facts that the signer swears or affirms is true.</p><p><strong>Common uses:</strong> Insurance claims, residency or identity statements, business matters and other formal declarations.</p><p><strong>How I help:</strong> When notarization is required, I administer the oath or affirmation and notarize the signer’s signature.</p></article>
 
-      <div class="container hero-grid">
+      <article class="service-card"><span class="service-number">04</span><h3>Powers of Attorney</h3><p><strong>What it is:</strong> A legal document used to authorize another person to act on someone’s behalf.</p><p><strong>Common uses:</strong> Financial, property, business and personal affairs.</p><p><strong>How I help:</strong> I can perform the required notarial act on a properly prepared document. I do not choose, prepare or explain the legal powers granted by it.</p></article>
 
-        <div class="hero-copy">
+      <article class="service-card"><span class="service-number">05</span><h3>Real Estate & Property Documents</h3><p><strong>What it is:</strong> Documents involving ownership, transfer or other matters concerning real property.</p><p><strong>Common uses:</strong> Deeds, property transfers, affidavits and other property transactions.</p><p><strong>How I help:</strong> I can notarize signatures when the document contains or is accompanied by the appropriate certificate. I do not provide title, real-estate or legal advice.</p></article>
 
-          <p class="eyebrow">
-            Mobile Notary & Wedding Officiant
-          </p>
+      <article class="service-card"><span class="service-number">06</span><h3>Vehicle Titles & Bills of Sale</h3><p><strong>What it is:</strong> Documents used to record or support the sale, transfer or ownership of a vehicle.</p><p><strong>Common uses:</strong> Private sales, title transfers and other vehicle transactions.</p><p><strong>How I help:</strong> I can notarize signatures on properly prepared vehicle documents when a notarial act is required.</p></article>
 
-          <h1>
-            Service built around what you need.
-          </h1>
+      <article class="service-card"><span class="service-number">07</span><h3>VIN Verification</h3><p><strong>What it is:</strong> Verification of a vehicle identification number on appropriate Florida vehicle documentation.</p><p><strong>Common uses:</strong> Certain title or registration transactions where the VIN must be physically verified.</p><p><strong>How I help:</strong> I meet you and the vehicle, inspect the VIN and complete the notary portion of the appropriate verification form when permitted.</p></article>
 
-          <p class="hero-text">
-            Some notarizations are simple.
-            Some happen when life is already complicated.
-            My job is to provide professional,
-            understanding service and make the appointment as straightforward as possible.
-          </p>
+      <article class="service-card"><span class="service-number">08</span><h3>Medical & Health-Care Documents</h3><p><strong>What it is:</strong> Documents recording health-care instructions, authorizations or related personal decisions.</p><p><strong>Common uses:</strong> Health-care directives, medical authorizations and other prepared documents requiring notarization.</p><p><strong>How I help:</strong> I can travel to homes, hospitals, rehabilitation centers and care facilities. I notarize the signature, not the medical or legal choices in the document.</p></article>
 
-          <p class="hero-text">
-            I serve the Greater Tampa Bay area and may travel farther
-            when the appointment and travel arrangements make sense.
-          </p>
+      <article class="service-card"><span class="service-number">09</span><h3>Business & Financial Documents</h3><p><strong>What it is:</strong> Agreements, authorizations, certifications and other business or financial documents.</p><p><strong>Common uses:</strong> Contracts, corporate documents, financial authorizations and sworn business statements.</p><p><strong>How I help:</strong> I verify the signer and perform the notarial act called for by the completed document.</p></article>
 
-          <div class="hero-actions">
+      <article class="service-card"><span class="service-number">10</span><h3>School, Travel & Minor Consent</h3><p><strong>What it is:</strong> Written permissions or authorizations involving a child, student or traveler.</p><p><strong>Common uses:</strong> Travel consent, school permissions and other situations where a notarized parent or guardian signature is requested.</p><p><strong>How I help:</strong> I can notarize the signature on a properly prepared consent or authorization form.</p></article>
 
-            <a
-              class="button"
-              href="contact.html"
-            >
-              Request an Appointment
-            </a>
+      <article class="service-card"><span class="service-number">11</span><h3>Certified Photocopies</h3><p><strong>What it is:</strong> A Florida notary may attest that a photocopy is a true copy of certain original documents.</p><p><strong>Common uses:</strong> When an organization requests a notary-attested copy of an eligible original.</p><p><strong>How I help:</strong> I can make or supervise the copy and complete the certificate when Florida law permits. Some public or vital records must instead come from the official records custodian.</p></article>
 
-            <a
-              class="button button-secondary"
-              href="pricing.html"
-            >
-              View Pricing
-            </a>
-
-          </div>
-
-        </div>
-
-        <aside
-          class="availability-card"
-          aria-label="RCW service approach"
-        >
-
-          <p class="card-label">
-            RCW Service
-          </p>
-
-          <h2>
-            Professional. Understanding. Available.
-          </h2>
-
-          <p>
-            You deal directly with me from the request
-            through the appointment.
-          </p>
-
-          <div class="hours-box">
-
-            <span>
-              Normal Availability
-            </span>
-
-            <strong>
-              7:00 AM to 11:00 PM ET
-            </strong>
-
-          </div>
-
-          <p class="availability-note">
-            Tell me what time works for you
-          </p>
-
-        </aside>
-
-      </div>
-
-    </section>
-
-
-    <!-- ===== PRIMARY SERVICES ===== -->
-    <section class="section">
-
-      <div class="container">
-
-        <div class="section-heading">
-
-          <p class="eyebrow">
-            Notary Services
-          </p>
-
-          <h2>
-            Mobile service when coming to you makes sense.
-          </h2>
-
-          <p>
-            If you are unsure whether your document needs notarization
-            or what type of notarization is required,
-            the document or receiving organization should provide those instructions.
-            I can perform the authorized notarial act once that requirement is established.
-          </p>
-
-        </div>
-
-        <div class="card-grid">
-
-          <article class="service-card">
-
-            <span class="service-number">
-              01
-            </span>
-
-            <h3>
-              General Notary Services
-            </h3>
-
-            <p>
-              Common notarizations including acknowledgments,
-              jurats, affidavits, powers of attorney,
-              and other documents requiring a Florida notarial act.
-            </p>
-
-            <a
-              class="text-link"
-              href="contact.html"
-            >
-              Request Service
-            </a>
-
-          </article>
-
-          <article class="service-card">
-
-            <span class="service-number">
-              02
-            </span>
-
-            <h3>
-              Mobile Notary
-            </h3>
-
-            <p>
-              I travel to homes, offices, businesses,
-              and other agreed locations by appointment.
-            </p>
-
-            <a
-              class="text-link"
-              href="pricing.html"
-            >
-              View Mobile Pricing
-            </a>
-
-          </article>
-
-          <article class="service-card">
-
-            <span class="service-number">
-              03
-            </span>
-
-            <h3>
-              Hospital & Care Facility Visits
-            </h3>
-
-            <p>
-              Mobile appointments for hospitals,
-              rehabilitation facilities,
-              assisted living locations,
-              and other care settings when appropriate.
-            </p>
-
-            <a
-              class="text-link"
-              href="contact.html"
-            >
-              Request a Visit
-            </a>
-
-          </article>
-
-          <article class="service-card">
-
-            <span class="service-number">
-              04
-            </span>
-
-            <h3>
-              VIN Verification
-            </h3>
-
-            <p>
-              Mobile VIN verification appointments
-              when the required Florida form and vehicle are available for inspection.
-            </p>
-
-            <a
-              class="text-link"
-              href="contact.html"
-            >
-              Ask About VIN Verification
-            </a>
-
-          </article>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ===== WEDDING OFFICIANT ===== -->
-    <section class="section section-pewter">
-
-      <div class="container mobile-highlight-grid">
-
-        <div>
-
-          <p class="eyebrow eyebrow-light">
-            Wedding Officiant
-          </p>
-
-          <h2>
-            Weddings and vow renewals.
-          </h2>
-
-        </div>
-
-        <div>
-
-          <p>
-            Need someone to officiate your wedding ceremony
-            or help make a vow renewal official and memorable?
-            RCW provides personal officiant service with scheduling
-            and travel discussed in advance.
-          </p>
-
-          <p>
-            Tell me the date, location,
-            type of ceremony,
-            and what you have in mind.
-          </p>
-
-          <a
-            class="button button-light"
-            href="contact.html"
-          >
-            Ask About Your Ceremony
-          </a>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ===== SERVICE AREA ===== -->
-    <section class="section">
-
-      <div class="container">
-
-        <div class="section-heading">
-
-          <p class="eyebrow">
-            Service Area
-          </p>
-
-          <h2>
-            Greater Tampa Bay is home base. Ask about farther travel.
-          </h2>
-
-          <p>
-            My core service area includes Hillsborough,
-            Polk, Pinellas, and Pasco counties.
-            Appointments outside the core area may be considered upon request.
-          </p>
-
-        </div>
-
-        <div class="card-grid">
-
-          <article class="service-card">
-
-            <span class="service-number">
-              01
-            </span>
-
-            <h3>
-              Hillsborough
-            </h3>
-
-            <p>
-              Mobile appointments throughout the Tampa,
-              Brandon, Valrico, and surrounding Hillsborough County area.
-            </p>
-
-          </article>
-
-          <article class="service-card">
-
-            <span class="service-number">
-              02
-            </span>
-
-            <h3>
-              Polk
-            </h3>
-
-            <p>
-              Mobile appointments may be scheduled throughout
-              Polk County based on location and availability.
-            </p>
-
-          </article>
-
-          <article class="service-card">
-
-            <span class="service-number">
-              03
-            </span>
-
-            <h3>
-              Pinellas
-            </h3>
-
-            <p>
-              Pinellas County appointments are available
-              with travel considered in the quoted service cost.
-            </p>
-
-          </article>
-
-          <article class="service-card">
-
-            <span class="service-number">
-              04
-            </span>
-
-            <h3>
-              Pasco & Beyond
-            </h3>
-
-            <p>
-              Pasco County is part of the core service area.
-              Sarasota, Orlando, Ocala, and other Florida locations
-              may be considered upon request.
-            </p>
-
-          </article>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ===== APPOINTMENT CTA ===== -->
-    <section class="section">
-
-      <div class="container">
-
-        <div class="cta-panel">
-
-          <div>
-
-            <p class="eyebrow">
-              Ready When You Are
-            </p>
-
-            <h2>
-              Tell me what you need and where you need me.
-            </h2>
-
-            <p>
-              Include the service,
-              location,
-              preferred date and time,
-              and any important appointment details.
-            </p>
-
-          </div>
-
-          <div class="cta-actions">
-
-            <a
-              class="button"
-              href="contact.html"
-            >
-              Request an Appointment
-            </a>
-
-            <a
-              class="button button-secondary"
-              href="pricing.html"
-            >
-              View Pricing
-            </a>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- ===== FOOTER ===== -->
-  <footer class="site-footer">
-
-    <div class="container footer-grid">
-
-      <div>
-
-        <img
-          src="assets/images/rcw-sr-logo-full.png"
-          alt="RCW Sr. Notary Services"
-          class="footer-logo"
-        >
-
-      </div>
-
-      <div>
-
-        <strong>
-          RCW Sr. Notary Services
-        </strong>
-
-        <p>
-          Mobile Notary & Wedding Officiant
-        </p>
-
-        <p>
-          Veteran owned
-        </p>
-
-      </div>
-
-      <div>
-
-        <p>
-          Romando C. Williams Sr.
-        </p>
-
-        <p>
-          Florida Notary Public
-        </p>
-
-        <p>
-          Normal Hours:
-          7:00 AM to 11:00 PM Eastern
-        </p>
-
-      </div>
-
-      <div>
-
-        <p>
-          &copy;
-          <span id="current-year"></span>
-          RCW Sr. Notary Services
-        </p>
-
-        <p>
-          All rights reserved.
-        </p>
-
-        <p>
-          <a href="privacy.html">Privacy</a>
-          |
-          <a href="terms.html">Terms</a>
-        </p>
-
-      </div>
-
+      <article class="service-card"><span class="service-number">12</span><h3>Safe-Deposit Box Contents</h3><p><strong>What it is:</strong> Florida law allows a notary to certify the contents of a safe-deposit box in circumstances authorized by law.</p><p><strong>Common uses:</strong> A formal inventory or certification when a box is opened under an applicable legal procedure.</p><p><strong>How I help:</strong> When the statutory requirements are met, I can perform the authorized certification associated with the box contents.</p></article>
     </div>
+  </div>
+</section>
 
-  </footer>
+<!-- ===== MOBILE SERVICE ===== -->
+<section class="section section-pewter">
+  <div class="container mobile-highlight-grid">
+    <div><p class="eyebrow eyebrow-light">Mobile Notary</p><h2>I come to you.</h2></div>
+    <div><p>Home, office, hospital, rehabilitation center, assisted-living facility or another agreed location, mobile service is available by appointment.</p><p>Tell me where you are, what type of document you have, how many signers are involved and when you need the appointment. I will confirm availability and travel pricing before we meet.</p><a class="button button-light" href="contact.html">Request Mobile Service</a></div>
+  </div>
+</section>
+
+<!-- ===== WEDDINGS ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-heading"><p class="eyebrow">Wedding Officiant</p><h2>Wedding ceremonies & vow renewals.</h2><p>Florida notaries are authorized to solemnize marriages. For a legal marriage ceremony, the couple must have a valid marriage license before the ceremony.</p></div>
+    <div class="card-grid">
+      <article class="service-card"><span class="service-number">13</span><h3>Wedding Ceremony</h3><p><strong>What it is:</strong> A ceremony in which a couple is legally joined in marriage after obtaining the required marriage license.</p><p><strong>What it is used for:</strong> From a simple legal ceremony to a more personal celebration.</p><p><strong>How I help:</strong> I officiate the ceremony, complete the required certification on the marriage license and handle my officiant responsibilities.</p></article>
+      <article class="service-card"><span class="service-number">14</span><h3>Vow Renewal</h3><p><strong>What it is:</strong> A ceremony for an already-married couple reaffirming their commitment.</p><p><strong>What it is used for:</strong> Anniversaries, milestones or simply saying the words again.</p><p><strong>How I help:</strong> I can officiate a personal vow-renewal ceremony built around the celebration you want.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== NOT SURE / LEGAL BOUNDARY ===== -->
+<section class="section section-pewter">
+  <div class="container mobile-highlight-grid">
+    <div><p class="eyebrow eyebrow-light">Not Sure What You Need?</p><h2>Start with the document.</h2></div>
+    <div><p>You do not need to know notary terminology before contacting me. Tell me what document you have and what the receiving organization has told you it requires.</p><p>As a Florida notary, I can explain the notarial process and perform an authorized notarial act. I cannot choose a notarial act for you, draft legal documents or provide legal advice.</p><a class="button button-light" href="contact.html">Tell Me What You Have</a></div>
+  </div>
+</section>
+
+<!-- ===== SERVICE AREA ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-heading"><p class="eyebrow">Service Area</p><h2>Greater Tampa Bay is home base. Ask about farther travel.</h2><p>My core service area includes Hillsborough, Polk, Pinellas and Pasco counties. Other Florida locations may be considered upon request.</p></div>
+  </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="section">
+  <div class="container">
+    <div class="cta-panel">
+      <div><p class="eyebrow">Ready When You Are</p><h2>Tell me what you have, where you are and when you need me.</h2><p>I will review the request and confirm availability and pricing before the appointment.</p></div>
+      <div class="cta-actions"><a class="button" href="contact.html">Request an Appointment</a><a class="button button-secondary" href="pricing.html">View Pricing</a></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div><img src="assets/images/rcw-sr-logo-full.png" alt="RCW Sr. Notary Services" class="footer-logo"></div>
+    <div><strong>RCW Sr. Notary Services</strong><p>Mobile Notary & Wedding Officiant</p><p>Veteran owned</p></div>
+    <div><p>Romando C. Williams Sr.</p><p>Florida Notary Public</p><p>Normal Hours: 7:00 AM to 11:00 PM Eastern</p></div>
+    <div><p>&copy; <span id="current-year"></span> RCW Sr. Notary Services</p><p>All rights reserved.</p><p><a href="privacy.html">Privacy</a> | <a href="terms.html">Terms</a></p></div>
+  </div>
+</footer>
 
 </body>
 </html>
 '''
 
 out = Path("/mnt/data/services.html")
-out.write_text(services, encoding="utf-8")
-print(f"Created {out} ({out.stat().st_size:,} bytes)")
+out.write_text(html, encoding="utf-8")
+print(f"Created {out} with {len(html):,} characters")
