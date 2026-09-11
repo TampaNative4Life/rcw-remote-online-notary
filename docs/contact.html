@@ -4,8 +4,8 @@ RCW SR. NOTARY SERVICES
 FILE: contact.html
 
 CHANGE NOTES
-Version: 1.4
-Date: September 5, 2026
+Version: 1.5
+Date: September 11, 2026
 
 Changes:
 - Restored the Formspree endpoint verified directly from
@@ -15,6 +15,9 @@ Changes:
 - Preserved ZIP Code validation for ##### and #####-####
   formats.
 - Preserved Remote Online Notary and Mobile Notary options.
+- Added Wedding Officiant service selection.
+- Added URL-driven service, act, document and wedding-purpose preselection.
+- Service-page appointment buttons can now open this form with the relevant choices already selected.
 - Preserved guided Notarial Act and Document Type workflow.
 - Preserved appointment persistence and resubmission
   workflow.
@@ -22,7 +25,7 @@ Changes:
 - Designed for main.js Version 1.7.5.
 
 GITHUB COMMIT:
-Version 1.4 - Restore verified Formspree endpoint
+Version 1.5 - Add service-page preselection workflow
 =========================================================
 -->
 
@@ -40,7 +43,7 @@ Version 1.4 - Restore verified Formspree endpoint
 
   <meta
     name="description"
-    content="Request a Remote Online Notary or mobile notary appointment with RCW Sr. Notary Services."
+    content="Request a Remote Online Notary, mobile notary, or wedding officiant appointment with RCW Sr. Notary Services."
   >
 
   <meta
@@ -177,7 +180,7 @@ Version 1.4 - Restore verified Formspree endpoint
 
           <p class="hero-text">
             Request a Remote Online Notary appointment,
-            a mobile appointment,
+            a mobile appointment, a wedding officiant appointment,
             or ask for help determining what kind of notarization you need.
           </p>
 
@@ -457,6 +460,10 @@ Version 1.4 - Restore verified Formspree endpoint
                   Mobile Notary, Come to Me
                 </option>
 
+                <option value="Wedding Officiant">
+                  Wedding Officiant
+                </option>
+
                 <option value="Not Sure">
                   Not Sure Yet
                 </option>
@@ -649,7 +656,29 @@ Version 1.4 - Restore verified Formspree endpoint
             </div>
 
 
-            <div class="form-group">
+
+            <div
+              class="form-group"
+              id="wedding-purpose-group"
+              hidden
+            >
+
+              <label for="wedding-purpose">
+                Wedding Service
+              </label>
+
+              <select
+                id="wedding-purpose"
+                name="weddingPurpose"
+              >
+                <option value="">Select one</option>
+                <option value="Wedding Ceremony">Wedding Ceremony</option>
+                <option value="Vow Renewal">Vow Renewal</option>
+              </select>
+
+            </div>
+
+            <div class="form-group" id="notarial-act-group">
 
               <label for="notarial-act-type">
                 Notarial Act Needed
@@ -681,6 +710,14 @@ Version 1.4 - Restore verified Formspree endpoint
                   Copy Certification, when permitted
                 </option>
 
+                <option value="VIN Verification">
+                  VIN Verification
+                </option>
+
+                <option value="Safe-Deposit Box Contents Certification">
+                  Safe-Deposit Box Contents Certification
+                </option>
+
                 <option value="Not Sure, Help Me Choose">
                   Not Sure, Help Me Choose
                 </option>
@@ -690,7 +727,7 @@ Version 1.4 - Restore verified Formspree endpoint
             </div>
 
 
-            <div class="form-group">
+            <div class="form-group" id="document-type-group">
 
               <label for="document-type">
                 Document Type
@@ -965,7 +1002,7 @@ Version 1.4 - Restore verified Formspree endpoint
         </strong>
 
         <p>
-          Remote Online & Mobile Notary
+          Remote Online Notary • Mobile Notary • Wedding Officiant
         </p>
 
         <p>
