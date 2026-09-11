@@ -4,8 +4,8 @@ RCW SR. NOTARY SERVICES
 FILE: assets/js/main.js
 
 CHANGE NOTES
-Version: 1.7.5
-Date: September 5, 2026
+Version: 1.8.0
+Date: September 11, 2026
 
 Changes:
 - Removed redundant second browser validity pass from the
@@ -22,9 +22,12 @@ Changes:
 - Preserved Google Sheets submission using the current
   deployed Apps Script URL.
 - Added clearer submission-stage console logging.
+- Added URL-based service, notarial-act, document and wedding-purpose preselection.
+- Added Wedding Officiant workflow.
+- Added VIN Verification and Safe-Deposit Box Contents Certification document workflows.
 
 GITHUB COMMIT:
-Version 1.7.5 - Remove redundant submit validity pass
+Version 1.8.0 - Add service-page appointment preselection
 =========================================================
 */
 
@@ -132,6 +135,20 @@ document.addEventListener(
       ],
 
 
+      "VIN Verification": [
+
+        "VIN Verification"
+
+      ],
+
+
+      "Safe-Deposit Box Contents Certification": [
+
+        "Safe-Deposit Box Contents"
+
+      ],
+
+
       "Not Sure, Help Me Choose": [
 
         "Affidavit",
@@ -146,6 +163,8 @@ document.addEventListener(
         "Sworn Statement",
         "Declaration",
         "Eligible Copy Certification",
+        "VIN Verification",
+        "Safe-Deposit Box Contents",
         "Other",
         "Not Sure"
 
@@ -521,6 +540,30 @@ document.addEventListener(
     const documentType =
       document.getElementById(
         "document-type"
+      );
+
+
+    const notarialActGroup =
+      document.getElementById(
+        "notarial-act-group"
+      );
+
+
+    const documentTypeGroup =
+      document.getElementById(
+        "document-type-group"
+      );
+
+
+    const weddingPurposeGroup =
+      document.getElementById(
+        "wedding-purpose-group"
+      );
+
+
+    const weddingPurpose =
+      document.getElementById(
+        "wedding-purpose"
       );
 
 
@@ -912,15 +955,63 @@ document.addEventListener(
         serviceType.value ===
         "Mobile Notary";
 
+      const isWedding =
+        serviceType.value ===
+        "Wedding Officiant";
+
 
       streetAddress.required =
-        isMobile;
+        isMobile || isWedding;
 
 
-      if (isMobile) {
+      if (isMobile || isWedding) {
 
         streetAddress.placeholder =
-          "Required for mobile appointments";
+          "Required for in-person appointments";
+
+      }
+
+
+      if (weddingPurposeGroup && weddingPurpose) {
+
+        weddingPurposeGroup.hidden =
+          !isWedding;
+
+        weddingPurpose.required =
+          isWedding;
+
+        if (!isWedding) {
+          weddingPurpose.value = "";
+        }
+
+      }
+
+
+      if (notarialActGroup && documentTypeGroup) {
+
+        notarialActGroup.hidden =
+          isWedding;
+
+        documentTypeGroup.hidden =
+          isWedding;
+
+      }
+
+
+      if (isWedding) {
+
+        notarialActType.required = false;
+        documentType.required = false;
+        notarialActType.value = "";
+        populateDocumentTypes("", "");
+        notarialHelpGroup.hidden = true;
+        notarialHelpDescription.required = false;
+        notarialHelpDescription.value = "";
+
+      } else {
+
+        notarialActType.required = true;
+        updateNotarialHelpWorkflow();
 
       }
 
@@ -943,6 +1034,26 @@ document.addEventListener(
             "Standard mobile service covers locations within " +
             STANDARD_TRAVEL_RADIUS +
             " driving miles of ZIP code 33594. Florida locations beyond that range may still receive special consideration.",
+            false
+          );
+
+        } else if (
+          serviceType.value ===
+          "Remote Online Notary"
+        ) {
+
+          setFormMessage(
+            "Remote Online Notary selected. I will contact you with the online-session details and document requirements.",
+            false
+          );
+
+        } else if (
+          serviceType.value ===
+          "Wedding Officiant"
+        ) {
+
+          setFormMessage(
+            "Wedding Officiant selected. Choose Wedding Ceremony or Vow Renewal and provide the appointment location and preferred time.",
             false
           );
 
@@ -1240,7 +1351,9 @@ document.addEventListener(
 
       if (
         serviceType.value !==
-        "Mobile Notary"
+        "Mobile Notary" &&
+        serviceType.value !==
+        "Wedding Officiant"
       ) {
 
         return true;
@@ -1256,7 +1369,7 @@ document.addEventListener(
       ) {
 
         setFormMessage(
-          "This location is outside Florida. Please select Remote Online Notary service or contact RCW Sr. Notary Services to discuss your options.",
+          "This in-person location is outside Florida. Please select Remote Online Notary service or contact RCW Sr. Notary Services to discuss your options.",
           true
         );
 
@@ -1470,6 +1583,118 @@ document.addEventListener(
 
     /*
     =====================================================
+    SERVICE-PAGE URL PRESELECTION
+    =====================================================
+    */
+
+    function applyAppointmentQuerySelection() {
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+      if (!params.toString()) {
+        return;
+      }
+
+      const serviceMap = {
+        "ron": "Remote Online Notary",
+        "mobile": "Mobile Notary",
+        "wedding": "Wedding Officiant",
+        "not-sure": "Not Sure"
+      };
+
+      const actMap = {
+        "acknowledgment": "Acknowledgment",
+        "jurat": "Jurat",
+        "oath-or-affirmation": "Oath or Affirmation",
+        "copy-certification": "Copy Certification",
+        "vin-verification": "VIN Verification",
+        "safe-deposit-box": "Safe-Deposit Box Contents Certification",
+        "not-sure": "Not Sure, Help Me Choose"
+      };
+
+      const documentMap = {
+        "affidavit": "Affidavit",
+        "power-of-attorney": "Power of Attorney",
+        "real-estate-document": "Real Estate Document",
+        "vehicle-title-or-bill-of-sale": "Vehicle Title or Bill of Sale",
+        "medical-or-healthcare-document": "Medical or Healthcare Document",
+        "business-document": "Business Document",
+        "school-or-minor-consent-form": "School or Minor Consent Form",
+        "eligible-copy-certification": "Eligible Copy Certification",
+        "vin-verification": "VIN Verification",
+        "safe-deposit-box-contents": "Safe-Deposit Box Contents"
+      };
+
+      const purposeMap = {
+        "wedding-ceremony": "Wedding Ceremony",
+        "vow-renewal": "Vow Renewal"
+      };
+
+      const serviceValue =
+        serviceMap[params.get("service")];
+
+      const actValue =
+        actMap[params.get("act")];
+
+      const documentValue =
+        documentMap[params.get("document")];
+
+      const purposeValue =
+        purposeMap[params.get("purpose")];
+
+      if (serviceValue) {
+        serviceType.value = serviceValue;
+      }
+
+      updateAddressRequirement();
+
+      if (serviceValue === "Wedding Officiant") {
+
+        if (purposeValue && weddingPurpose) {
+          weddingPurpose.value = purposeValue;
+        }
+
+      } else if (actValue) {
+
+        notarialActType.value = actValue;
+        populateDocumentTypes(actValue, documentValue || "");
+        updateNotarialHelpWorkflow();
+
+        if (
+          actValue === "Not Sure, Help Me Choose" &&
+          documentValue
+        ) {
+          notarialHelpDescription.value =
+            "I am requesting help with: " + documentValue + ".";
+        }
+
+      }
+
+      const formSection =
+        document.getElementById(
+          "appointment-form"
+        );
+
+      if (formSection) {
+        window.setTimeout(
+          function () {
+            formSection.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+          },
+          100
+        );
+      }
+
+    }
+
+
+    /*
+    =====================================================
     RESTORE ONLY WHEN NOT REFRESHED
     =====================================================
     */
@@ -1485,6 +1710,9 @@ document.addEventListener(
 
 
     updateAddressRequirement();
+
+
+    applyAppointmentQuerySelection();
 
 
     /*
@@ -1736,6 +1964,7 @@ document.addEventListener(
         */
 
         if (
+          serviceType.value !== "Wedding Officiant" &&
           notarialActType.value ===
           "Not Sure, Help Me Choose" &&
           !notarialHelpDescription.value.trim()
@@ -1762,6 +1991,7 @@ document.addEventListener(
         */
 
         if (
+          serviceType.value !== "Wedding Officiant" &&
           notarialActType.value !==
           "Not Sure, Help Me Choose"
         ) {
