@@ -1,15 +1,29 @@
 {
+  "_changeNotes": {
+    "file": "pricing.json",
+    "version": "1.2",
+    "date": "September 16, 2026",
+    "changes": [
+      "Travel now uses cent precision.",
+      "Zero-value optional receipt rows are hidden."
+    ]
+  },
   "effectiveDate": "2026-08-17",
-  "inPersonNotary": 10.00,
-  "ronNotary": 25.00,
-  "ronService": 22.00,
-  "mobileBase": 40.00,
+  "lastUpdated": "2026-09-16",
+  "inPersonNotary": 10.0,
+  "ronNotary": 25.0,
+  "ronService": 22.0,
+  "mobileBase": 40.0,
   "premiumGasBenchmark": 4.15,
-  "operatingAllowance": 1.00,
+  "operatingAllowance": 1.0,
   "vehicleMpg": 25,
-  "sameDay": 20.00,
-  "afterHours": 25.00,
-  "holiday": 35.00,
-  "waitingPer15Minutes": 15.00,
-  "automaticTravelRadius": 40
+  "travelOriginZip": "33594",
+  "roundTripMultiplier": 2,
+  "travelRounding": "centPrecision",
+  "sameDay": 20.0,
+  "afterHours": 25.0,
+  "holiday": 35.0,
+  "waitingPer15Minutes": 15.0,
+  "automaticTravelRadius": 40,
+  "standardTravelRadius": 150
 }
