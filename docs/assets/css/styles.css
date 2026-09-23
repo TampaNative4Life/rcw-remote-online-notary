@@ -226,10 +226,14 @@ select {
 
 .site-logo {
   display: block;
-  width: auto;
+  width: 230px;
   height: 115px;
-  max-width: 400px;
-  object-fit: contain;
+  max-width: 100%;
+  object-fit: cover;
+  object-position: center;
+  clip-path: inset(8% 5% 8% 5%);
+  transform: scale(1.18);
+  transform-origin: left center;
 }
 
 .primary-nav {
@@ -799,14 +803,17 @@ select {
 
 .footer-logo {
   display: block;
-  width: auto;
-  max-width: 360px;
-  height: 145px;
-  object-fit: contain;
-  object-position: left center;
+  width: 300px;
+  max-width: 100%;
+  height: 150px;
+  object-fit: cover;
+  object-position: center;
+  clip-path: inset(8% 5% 8% 5%);
+  transform: scale(1.18);
+  transform-origin: left center;
   background: var(--white);
   border-radius: 14px;
-  padding: 8px;
+  padding: 0;
 }
 
 .site-footer strong {
@@ -849,8 +856,9 @@ select {
   }
 
   .site-logo {
-    height: 90px;
-    max-width: 330px;
+    width: 200px;
+    height: 100px;
+    max-width: 100%;
   }
 
   .hero-grid {
@@ -922,8 +930,9 @@ select {
   }
 
   .site-logo {
-    height: 82px;
-    max-width: 300px;
+    width: 180px;
+    height: 90px;
+    max-width: 100%;
   }
 
   .hero {
@@ -969,8 +978,10 @@ select {
   }
 
   .site-logo {
-    height: 72px;
-    max-width: 260px;
+    width: 160px;
+    height: 80px;
+    max-width: 100%;
+    transform: scale(1.10);
   }
 
   .hero {
@@ -1022,8 +1033,10 @@ select {
   }
 
   .footer-logo {
-    max-width: 300px;
-    height: 120px;
+    width: 250px;
+    max-width: 100%;
+    height: 125px;
+    transform: scale(1.10);
   }
 
   .form-grid {
